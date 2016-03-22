@@ -1,67 +1,71 @@
 package beans.trans;
 
+
 import org.apache.commons.lang3.StringUtils;
 import util.Constants;
+import util.FileUtil;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by paranoidq on 16/3/7.
  */
+
 public class Item {
 
-    private static int INCR_ID = 0;
-
-    private int id;
-    private String key;  // can be null for hashTag
-    private String val;
-    private ItemType itemType;
-
-
-    public Item(String key, String val) {
-        this.id = ++INCR_ID;
-        this.key = key;
-        this.val = val;
-        this.itemType = ItemType.k_v;
+    private static Map<Integer, Item> items = new HashMap<>();
+    static {
+        ItemHandler.loadItems();
     }
 
-    public Item(String val) {
-        this(StringUtils.EMPTY, val);
-        this.itemType = ItemType.tag;
+    public static Map<Integer, Item> getItems() {
+        return items;
+    }
+
+    public static Item getItem(int id) {
+        return items.get(id);
+    }
+
+
+    private int id;
+    private String item;
+
+    public Item(int id, String item) {
+        this.id = id;
+        this.item = item;
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
-    public String getKey() {
-        return key;
-    }
+    /**
+     * Load Items
+     */
+    public static class ItemHandler {
 
-    public String getVal() {
-        return val;
-    }
+        public static void loadItems() {
+            if (items.isEmpty()) {
+                try {
+                    loadItems0();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-    public ItemType getItemType() {
-        return itemType;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public void setVal(String val) {
-        this.val = val;
-    }
-
-    @Override
-    public String toString() {
-        if (itemType == ItemType.k_v) {
-            return key + Constants.EQUAL + this.val;
-        } else {
-            return Constants.TAG + this.val;
+        //TODO
+        private static void loadItems0() throws IOException {
+            BufferedReader br = FileUtil.readFile(Constants._item_path);
+            String line;
+            while ( (line = br.readLine()) != null) {
+                line = StringUtils.strip(line);
+                String[] sp = line.split(Constants.COMMA);
+                items.put(Integer.parseInt(sp[0]), Integer.parseInt(sp[1]));
+            }
         }
     }
+
 }

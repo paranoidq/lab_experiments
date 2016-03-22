@@ -23,23 +23,23 @@ public class EvalResult {
 
     public Triple getAvg() {
         double p = 0;
-        double r = 0;
-        double f = 0;
+//        double r = 0;
+//        double f = 0;
 
         for (Triple t : records) {
             p += t.getP();
-            r += t.getR();
+//            r += t.getR();
         }
         int num = records.size();
         p = p / num;
-        r = r / num;
-        return new Triple(p, r);
+//        r = r / num;
+        return new Triple(p);
     }
 
-    public void addRecord(double p, double r) {
-        Triple t = new Triple(p, r);
+    public void addRecord(double p) {
+        Triple t = new Triple(p);
         this.records.add(t);
-        if (max == null || t.getF() > max.getF()) {
+        if (max == null || t.getP() > max.getP()) {
             max = t;
         }
     }
@@ -50,9 +50,9 @@ public class EvalResult {
 
     public void printMax() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Utils.doubleToString(max.getP(), WIDTH, DECIMAL)).append(Constants.TAB)
-                .append(Utils.doubleToString(max.getR(), WIDTH, DECIMAL)).append(Constants.TAB)
-                .append(Utils.doubleToString(max.getF(), WIDTH, DECIMAL)).append(Constants.NEWLINE);
+        sb.append(Utils.doubleToString(max.getP(), WIDTH, DECIMAL)).append(Constants.NEWLINE);
+//                .append(Utils.doubleToString(max.getR(), WIDTH, DECIMAL)).append(Constants.TAB)
+//                .append(Utils.doubleToString(max.getF(), WIDTH, DECIMAL)).append(Constants.NEWLINE);
         System.out.println(sb.toString());
     }
 
@@ -60,25 +60,25 @@ public class EvalResult {
 
     public static class Triple {
         private double p;
-        private double r;
-        private double f;
+//        private double r;
+//        private double f;
 
-        public Triple(double precision, double recall) {
+        public Triple(double precision) {
             this.p = precision;
-            this.r = recall;
-            this.f = 2 * precision * recall / (precision + recall);
+//            this.r = recall;
+//            this.f = 2 * precision * recall / (precision + recall);
         }
 
         public double getP() {
             return p;
         }
 
-        public double getR() {
-            return r;
-        }
-
-        public double getF() {
-            return f;
-        }
+//        public double getR() {
+//            return r;
+//        }
+//
+//        public double getF() {
+//            return f;
+//        }
     }
 }

@@ -1,9 +1,8 @@
 package evaluator;
 
 import beans.trans.WrappedInstances;
-import loader.TransLoader;
+import handler.TransHandler;
 import weka.classifiers.Classifier;
-import weka.core.Instances;
 
 import java.util.Random;
 
@@ -38,7 +37,7 @@ public class EvalParams {
 
     private void init(String transPath, Random random) {
         try {
-            data = TransLoader.load(transPath);
+            data = TransHandler.Loader.loadSrc(transPath);
             data.getInstances().randomize(random);
 
             if (data.getInstances().classAttribute().isNominal()) {
