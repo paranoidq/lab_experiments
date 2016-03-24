@@ -1,13 +1,9 @@
 package beans.trans;
 
 
-import org.apache.commons.lang3.StringUtils;
-import util.Constants;
-import util.FileUtil;
+import com.sun.tools.javac.jvm.Items;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by paranoidq on 16/3/7.
@@ -16,9 +12,6 @@ import java.util.Map;
 public class Item {
 
     private static Map<Integer, Item> items = new HashMap<>();
-    static {
-        ItemHandler.loadItems();
-    }
 
     public static Map<Integer, Item> getItems() {
         return items;
@@ -28,44 +21,52 @@ public class Item {
         return items.get(id);
     }
 
+    public static void addItem(int itemId, String name) {
+        items.put(itemId, new Item(itemId, name));
+    }
 
     private int id;
-    private String item;
+    private String name;
 
-    public Item(int id, String item) {
+    public Item(int id, String name) {
         this.id = id;
-        this.item = item;
+        this.name = name;
     }
 
     public int getId() {
         return this.id;
     }
 
-    /**
-     * Load Items
-     */
-    public static class ItemHandler {
 
-        public static void loadItems() {
-            if (items.isEmpty()) {
-                try {
-                    loadItems0();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof Item)) {
+            return false;
         }
+        Item item = (Item)o;
+        return item.getId() == this.id;
+    }
 
-        //TODO
-        private static void loadItems0() throws IOException {
-            BufferedReader br = FileUtil.readFile(Constants._item_path);
-            String line;
-            while ( (line = br.readLine()) != null) {
-                line = StringUtils.strip(line);
-                String[] sp = line.split(Constants.COMMA);
-                items.put(Integer.parseInt(sp[0]), Integer.parseInt(sp[1]));
-            }
+    @Override
+    public String toString() {
+        if (this.id == 42) {
+            System.out.println(this.name);
         }
+        return "" + this.id + "," + this.name;
+    }
+
+    public static Map<Integer, Integer> map2NewId() {
+        Map<Integer, Integer> newID2IdMap = new HashMap<>();
+
+        List<Map.Entry<Integer, Item>> list = new ArrayList<>(items.entrySet());
+        Collections.sort(list,
+                (o1, o2) -> Integer.compare(o1.getKey(), o2.getKey()));
+
+        int newID = -1;
+        for (Map.Entry<Integer, Item> entry : list) {
+            newID2IdMap.put(++newID, entry.getKey());
+        }
+        return newID2IdMap;
     }
 
 }
