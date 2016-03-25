@@ -21,8 +21,8 @@ public class Main {
 //            ItemHandler.loadItems();
 //            //WrappedInstances instances = TransHandler.Loader.loadTrans(Constants._TRANS_PATH);
 //
-//            TransSet posTransSet = TransHandler.loadTransSet(PathRules.getPosTransPath(), ClassType.POSITIVE);
-//            TransSet negTransSet = TransHandler.loadTransSet(PathRules.getNegTransPath(), ClassType.NEGATIVE);
+//            TransSet posTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getPosTransPath(), ClassType.POSITIVE);
+//            TransSet negTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getNegTransPath(), ClassType.NEGATIVE);
 //
 //            TfIdfFilter filter = new TfIdfFilter();
 //            filter.filter(posTransSet, negTransSet);
@@ -33,8 +33,8 @@ public class Main {
 //            TransHandler.filterTransSet(negTransSet, remainedItems);
 
             ItemHandler.loadItems(PathRules.getItemPathAfterTFIDF());
-            TransSet posTransSet = TransHandler.loadTransSet(PathRules.getPosTransPathAfterTFIDF(), ClassType.POSITIVE);
-            TransSet negTransSet = TransHandler.loadTransSet(PathRules.getNegTransPathAfterTFIDF(), ClassType.NEGATIVE);
+            TransSet posTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getPosTransPathAfterTFIDF(), ClassType.POSITIVE);
+            TransSet negTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getNegTransPathAfterTFIDF(), ClassType.NEGATIVE);
 
             EvalParams params = new EvalParams(ParamConstants.classifier, ParamConstants.NUM_FOLDS);
 

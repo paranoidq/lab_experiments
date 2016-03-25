@@ -1,9 +1,9 @@
 package beans.trans;
 
 import beans.pattern.ClassType;
+import org.apache.commons.collections.CollectionUtils;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by paranoidq on 16/3/7.
@@ -31,6 +31,11 @@ public class Trans {
         this.items.add(itemId);
     }
 
+    public void setFeats(List<Integer> feats) {
+        feats.sort((o1, o2) -> Integer.compare(o1, o2));
+        this.items = feats;
+    }
+
     public List<Integer> getItems(){
         return this.items;
     }
@@ -48,6 +53,9 @@ public class Trans {
 //        if(!items.isEmpty()) {
 //            sb.replace(sb.length()-1, sb.length(), "");
 //        }
+        if (sb.length() < 1) {
+            System.out.println("");
+        }
         sb.replace(sb.length()-1, sb.length(), "");
         return sb.toString();
     }

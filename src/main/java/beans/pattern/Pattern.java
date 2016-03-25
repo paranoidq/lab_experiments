@@ -1,7 +1,9 @@
 package beans.pattern;
 
 import beans.trans.Trans;
+import org.apache.commons.collections.CollectionUtils;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,6 +12,8 @@ import java.util.List;
  */
 public class Pattern {
 
+    // pattern id
+    private int id;
     // pattern items
     private List<Integer> items;
     // pattern所属的类别
@@ -33,7 +37,7 @@ public class Pattern {
      * @return
      */
     public boolean cover(Trans trans) {
-        return trans.getItems().contains(items);
+        return CollectionUtils.isSubCollection(items, trans.getItems());
     }
 
     /**
@@ -62,12 +66,16 @@ public class Pattern {
 
     @Override
     public boolean equals(Object o) {
-        return super.equals(o);
+        if (o == null || !(o instanceof Pattern)) {
+            return false;
+        }
+        Pattern p = (Pattern)o;
+        return p.id == this.id;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return 19*id + 37;
     }
 
     public int getSuppL() {
@@ -80,5 +88,9 @@ public class Pattern {
 
     public int getSuppD() {
         return this.suppD;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

@@ -5,14 +5,17 @@ package handler;
  */
 
 import beans.trans.Item;
+import beans.trans.Trans;
+import beans.trans.TransSet;
 import org.apache.commons.lang3.StringUtils;
 import util.Constants;
 import util.FileUtil;
+import util.PathRules;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Load Items
@@ -30,23 +33,29 @@ public class ItemHandler {
         }
     }
 
+
     /**
-     * 将item写入指定的文件路径
-     * (无序)
-     * @param items
-     * @param path
+     * 将过滤后的item写入指定路径
+     * @param posTransSet
+     * @param negTransSet
      */
-    public static void writeItems(Set<Integer> items, String path) {
-        try {
-            BufferedWriter bw = FileUtil.writeFile(path);
-            for (Integer itemId : items) {
+    public static void writeFilteredItems(TransSet posTransSet, TransSet negTransSet) {
+        Set<Integer> itemIdsSet = new HashSet<>();
+        for (Trans trans : posTransSet.getTransSet()) {
+            itemIdsSet.addAll(trans.getItems());
+        }
+        for (Trans trans : negTransSet.getTransSet()) {
+            itemIdsSet.addAll(trans.getItems());
+        }
+        List<Integer> list = new ArrayList<>(itemIdsSet);
+        Collections.sort(list);
+        try (BufferedWriter bw = FileUtil.writeFile(PathRules.getItemPathAfterTFIDF())) {
+            for (Integer itemId : list) {
                 bw.write(Item.getItem(itemId).toString());
                 bw.newLine();
             }
-            bw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -1,12 +1,15 @@
 package main;
 
-import filter.TfIdfFilter;
-import beans.pattern.ClassType;
+import beans.Edge;
 import beans.trans.TransSet;
+import handler.EdgeHandler;
+import handler.FeatsHandler;
 import handler.ItemHandler;
 import handler.TransHandler;
 import util.PathRules;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,21 +24,32 @@ public class PreMain {
         try {
             ItemHandler.loadItems(PathRules.getItemPath());
 
-            TransSet posTransSet = TransHandler.loadTransSet(PathRules.getPosTransPath(), ClassType.POSITIVE);
-            TransSet negTransSet = TransHandler.loadTransSet(PathRules.getNegTransPath(), ClassType.NEGATIVE);
+//            TransSet posTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getPosTransPath(), ClassType.POSITIVE);
+//            TransSet negTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getNegTransPath(), ClassType.NEGATIVE);
 
-            TfIdfFilter filter = new TfIdfFilter();
-            filter.filter(posTransSet, negTransSet);
-            Set<Integer> remainedItems = filter.getRemainedItems();
+//            TfIdfFilter filter = new TfIdfFilter();
+//            filter.filter(posTransSet, negTransSet);
+//            Set<Integer> remainedItems = filter.getRemainedItems();
+//
+//            // 重新构建Trans
+//            TransHandler.filterTransSet(posTransSet, negTransSet, remainedItems);
+//            // 写入filtered_trans文件
+//            TransHandler.writeTrans(posTransSet, PathRules.getPosTransPathAfterTFIDF(),
+//                    negTransSet, PathRules.getNegTransPathAfterTFIDF());
+//            // 写入filtered_items文件
+//            ItemHandler.writeItems(remainedItems, PathRules.getItemPathAfterTFIDF());
 
-            // 重新构建Trans
-            TransHandler.filterTransSet(posTransSet, negTransSet, remainedItems);
-            // 写入filtered_trans文件
-            TransHandler.writeTrans(posTransSet, PathRules.getPosTransPathAfterTFIDF(),
-                    negTransSet, PathRules.getNegTransPathAfterTFIDF());
+            Map<Integer, Set<Integer>> feats = FeatsHandler.loadFeats(PathRules.getFeatsPath());
+            Map<Integer, List<Integer>> filteredFeats = FeatsHandler.filterByTFIDF(feats);
+
+            // 根据过滤过的feats构建trans
+            List<Edge> edges = EdgeHandler.loadEdges(PathRules.getEdgesPath());
+            TransSet posTrans = TransHandler.genPosTransRandomly(filteredFeats, edges);
+            TransSet negTrans = TransHandler.genNegTransRandomly(filteredFeats, edges, posTrans.size());
+
+
             // 写入filtered_items文件
-            ItemHandler.writeItems(remainedItems, PathRules.getItemPathAfterTFIDF());
-
+           ItemHandler.writeFilteredItems(posTrans, negTrans);
 
         } catch (Exception e) {
             e.printStackTrace();

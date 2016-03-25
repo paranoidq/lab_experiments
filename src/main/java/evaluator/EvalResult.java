@@ -3,6 +3,7 @@ package evaluator;
 import util.Constants;
 import weka.core.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,6 +14,10 @@ public class EvalResult {
     private List<Triple> records;
     private Triple max; // f1最优的triple
 
+    public EvalResult() {
+        this.records = new ArrayList<>();
+        this.max = new Triple(0, 0);
+    }
 
     public void addRecord(double precison, double recall) {
         Triple t = new Triple(precison, recall);

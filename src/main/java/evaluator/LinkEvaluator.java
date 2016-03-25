@@ -64,7 +64,7 @@ public class LinkEvaluator {
                 calAndSetDx(patterns, allTransSet);
 
                 // 3. 合并到union
-                union.addAll(union); // TODO 如果一个pattern既从c1上挖出,也从c2上挖出,怎么办?
+                union.addAll(patterns); // TODO 如果一个pattern既从c1上挖出,也从c2上挖出,怎么办?
             }
 
             // 过滤

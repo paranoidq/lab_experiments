@@ -17,11 +17,11 @@ import java.util.*;
  *
  * Created by paranoidq on 16/3/23.
  */
+@Deprecated
 public class TfIdfFilter {
 
-    public static final double delta = 0.8;
+    public static final double delta = 0.2;
 
-    // itemId - new itemId(starting from 0, for constructing instances)
     private Set<Integer> remainedItems;
 
     public TfIdfFilter() {

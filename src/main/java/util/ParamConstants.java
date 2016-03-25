@@ -1,6 +1,7 @@
 package util;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
 
 /**
@@ -9,9 +10,7 @@ import weka.classifiers.bayes.NaiveBayesMultinomial;
 public interface ParamConstants {
 
     // 分类器
-    Classifier classifier = new NaiveBayesMultinomial();
-
-
+    Classifier classifier = new NaiveBayes();
 
 
     int FP_IG_DELTA = 1; // 每个instance至少被pattern覆盖1次
@@ -23,7 +22,11 @@ public interface ParamConstants {
 
     // fp_growth
     int PATTERN_MIN_LEN = 2;
-    double MIN_SUPPORT = 0.8;
+    double MIN_SUPPORT = 10;
     String FP_EXE_PATH = "fp_growth.exe";
+
+
+    // TFIDF过滤参数, 即每篇文章的feats留下80%的词汇
+    double TFIDF_DELTA = 0.7;
 
 }

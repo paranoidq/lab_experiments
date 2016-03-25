@@ -56,7 +56,7 @@ public class TransSet {
             for (Trans trans : transSubset) {
                 trainCV.addTrans(trans.copy());
             }
-            transSubset = transSet.subList((fold+1)*part, (numFolds-1-fold)*part);
+            transSubset = transSet.subList((fold+1)*part, size);
             for (Trans trans : transSubset) {
                 trainCV.addTrans(trans.copy());
             }

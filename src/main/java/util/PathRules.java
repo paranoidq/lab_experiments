@@ -10,15 +10,7 @@ import java.io.File;
 public class PathRules {
 
     private static final String _PREFIX = "/Users/paranoidq/316-data/polblogs2";
-    private static final String _POSTFIX = "txt";
 
-    /**
-     * 获取原始的pos trans path
-     * @return
-     */
-    public static String getPosTransPath() {
-        return _PREFIX + File.separator + "pos_trans";
-    }
 
     /**
      * 获取tf-idf之后的trans
@@ -28,11 +20,6 @@ public class PathRules {
         return _PREFIX + File.separator + "filtered_pos_trans";
     }
 
-    /**
-     * 获取原始的neg trans path
-     * @return
-     */
-    public static String getNegTransPath() {return _PREFIX + File.separator + "neg_trans"; }
 
     /**
      * 获取tf-idf之后的trans
@@ -54,8 +41,35 @@ public class PathRules {
         return _PREFIX + File.separator + "filtered_items";
     }
 
-    public static String getItemPathRemoved() {
-        return _PREFIX + File.separator + "removed_items";
+    /**
+     * 获取TFIDF之前的uid-feats路径
+     * @return
+     */
+    public static String getFeatsPath() {
+        return _PREFIX + File.separator + "features";
+    }
+
+    /**
+     * 获取原始的edges路径
+     * @return
+     */
+    public static String getEdgesPath() {
+        return _PREFIX + File.separator + "edges";
+    }
+
+    /**
+     * 获取随机生成的pos edge路径, edges与pos_trans对应
+     * @return
+     */
+    public static String getPosEdgesPathAfterTFIDF() {
+        return _PREFIX + File.separator + "filtered_pos_edges";
+    }
+    /**
+     * 获取随机生成的neg edge路径, edges与neg_trans对应
+     * @return
+     */
+    public static String getNegEdgesPathAfterTFIDF() {
+        return _PREFIX + File.separator + "filtered_neg_edges";
     }
 
     /**

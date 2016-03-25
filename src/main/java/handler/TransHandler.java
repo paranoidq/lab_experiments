@@ -1,21 +1,21 @@
 package handler;
 
+import beans.Edge;
 import beans.pattern.ClassType;
 import beans.pattern.Pattern;
 import beans.trans.Item;
 import beans.trans.Trans;
 import beans.trans.TransSet;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import util.FileUtil;
 import util.PathRules;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * TransHandler
@@ -41,6 +41,8 @@ public class TransHandler {
             bw.write(trans.toString());
             bw.newLine();
         }
+        bw.flush();
+        bw.close();
     }
 
     /**
@@ -62,7 +64,8 @@ public class TransHandler {
         Map<Integer, Integer> newID2id = Item.map2NewId();
         int itemCount = newID2id.size();
 
-        BufferedWriter bw = FileUtil.writeFile(PathRules.getAugTrainPath(fold));
+        BufferedWriter bw = FileUtil.writeFile(augTrainPath);
+        writeHeader(bw, itemCount, patterns.size());
         for (Trans trans : train.getTransSet()) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < itemCount; i++) {
@@ -83,8 +86,10 @@ public class TransHandler {
             bw.write(sb.toString());
             bw.newLine();
         }
+        bw.flush();
 
-        bw = FileUtil.writeFile(PathRules.getAugTestPath(fold));
+        bw = FileUtil.writeFile(augTestPath);
+        writeHeader(bw, itemCount, patterns.size());
         for (Trans trans : test.getTransSet()) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < itemCount; i++) {
@@ -105,18 +110,19 @@ public class TransHandler {
             bw.write(sb.toString());
             bw.newLine();
         }
+        bw.flush(); // 这里必须flush,否则trans生成不完全....
         bw.close();
     }
 
 
     /**
-     * 用于加载原始的trans
+     * 加载过滤之后生成的trans
      * @param path
      * @param ct
      * @return
      * @throws IOException
      */
-    public static TransSet loadTransSet(String path, ClassType ct) throws IOException {
+    public static TransSet loadTransSetAfterTFIDF(String path, ClassType ct) throws IOException {
         TransSet transSet = new TransSet();
 
         BufferedReader br = FileUtil.readFile(path);
@@ -132,47 +138,108 @@ public class TransHandler {
         return transSet;
     }
 
+
     /**
-     * 根据过滤的词汇重新构建trans
-     * @param posTransSet
-     * @param negTransSet
-     * @param remainedItems
+     * 随机产生50%的posTrans
+     *      会shuffle输入的edges list
+     * @param filteredUidFeats
+     * @param edges
+     * @return
      */
-    public static void filterTransSet(TransSet posTransSet, TransSet negTransSet,
-                                      Set<Integer> remainedItems) {
-        for (Trans trans : posTransSet.getTransSet()) {
-            trans.getItems().retainAll(remainedItems);
+    public static TransSet genPosTransRandomly(Map<Integer, List<Integer>> filteredUidFeats,
+                                               List<Edge> edges) {
+        TransSet transSet = new TransSet();
+        Collections.shuffle(edges, new Random(System.nanoTime()));
+        List<Edge> sub = edges.subList(0, edges.size()/2);
+        List<Edge> pickedEdges = new LinkedList<>();
+        for (Edge edge : sub) {
+            Trans trans = new Trans(ClassType.POSITIVE);
+
+            List<Integer> feats1 = filteredUidFeats.get(edge.getId1());
+            List<Integer> feats2 = filteredUidFeats.get(edge.getId2());
+            List<Integer> feats = (List<Integer>) CollectionUtils.intersection(feats1, feats2);
+            if (!feats.isEmpty()) {
+                trans.setFeats(feats);
+                pickedEdges.add(edge);
+            } else {
+                System.out.println("Empty trans: " + edge);
+            }
+            transSet.addTrans(trans);
         }
-        for (Trans trans : negTransSet.getTransSet()) {
-            trans.getItems().retainAll(remainedItems);
+
+        writeTrans(transSet, PathRules.getPosTransPathAfterTFIDF());
+        EdgeHandler.writeEdges(pickedEdges, PathRules.getPosEdgesPathAfterTFIDF());
+        return transSet;
+    }
+
+    public static TransSet genNegTransRandomly(Map<Integer, List<Integer>> filteredUidFeats,
+                                               List<Edge> edges, int count) {
+        Set<String> linked = edges.stream().map(edge -> "" + edge.getId1() + "," + edge.getId2())
+                .collect(Collectors.toSet());
+        List<Edge> pickedEdges = new LinkedList<>();
+
+        TransSet transSet = new TransSet();
+        int maxUid = filteredUidFeats.size()-1;
+        Random random = new Random(System.nanoTime());
+        int curCount = 0;
+        while (curCount < count) {
+            int id1 = random.nextInt(maxUid+1);
+            int id2 = random.nextInt(maxUid+1);
+            if (id1 != id2 && !linked.contains(candidateEdge(id1,id2))) {
+                Trans trans = new Trans(ClassType.NEGATIVE);
+                List<Integer> feats1 = filteredUidFeats.get(id1);
+                List<Integer> feats2 = filteredUidFeats.get(id2);
+                List<Integer> candidateFeats = (List<Integer>) CollectionUtils.intersection(feats1, feats2);
+                if (!candidateFeats.isEmpty()) {
+                    trans.setFeats(candidateFeats);
+                    ++curCount;
+                    pickedEdges.add(Edge.newEdge(id1, id2));
+                    transSet.addTrans(trans);
+                }
+
+            }
         }
+        writeTrans(transSet, PathRules.getNegTransPathAfterTFIDF());
+        EdgeHandler.writeEdges(pickedEdges, PathRules.getNegEdgesPathAfterTFIDF());
+        return transSet;
+    }
+
+    private static String candidateEdge(int id1, int id2) {
+        return id1<id2 ? ""+id1+","+id2 : ""+id2+","+id1;
     }
 
 
     /**
      * 将trans写入指定的文件路径
-     * @param posTransSet
-     * @param posPath
-     * @param negTransSet
-     * @param negPath
+     * @param transSet
+     * @param path
      */
-    public static void writeTrans(TransSet posTransSet, String posPath,
-                                  TransSet negTransSet, String negPath) {
-        try {
-            BufferedWriter bw = FileUtil.writeFile(posPath);
-            for (Trans trans : posTransSet.getTransSet()) {
+    public static void writeTrans(TransSet transSet, String path) {
+        try (BufferedWriter bw = FileUtil.writeFile(path)) {
+            for (Trans trans : transSet.getTransSet()) {
                 bw.write(trans.toString());
                 bw.newLine();
             }
-            bw.close();
-            bw = FileUtil.writeFile(negPath);
-            for (Trans trans : negTransSet.getTransSet()) {
-                bw.write(trans.toString());
-                bw.newLine();
-            }
-            bw.close();
+            bw.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void writeHeader(BufferedWriter bw, int itemCount, int patternCount) throws IOException {
+        bw.write("@relation polblogs");
+        bw.newLine();
+        for (int i = 0; i < itemCount; i++) {
+            bw.write("@attribute item" + i + " {0, 1}");
+            bw.newLine();
+        }
+        for (int i = 0; i < patternCount; i++) {
+            bw.write("@attribute pattern" + i + " {0, 1}");
+            bw.newLine();
+        }
+        bw.write("@attribute class {POSITIVE, NEGATIVE}");
+        bw.newLine();
+        bw.write("@data");
+        bw.newLine();
     }
 }

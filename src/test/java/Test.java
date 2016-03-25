@@ -26,9 +26,11 @@ public class Test {
 //
 //        System.out.println(data);
 
-        String cmd = "/Users/paranoidq/316-data/polblogs/fpgrowth -x -tm -m2 -s90 -v\"|%a\" /Users/paranoidq/316-data/polblogs/trans " +
-                "/Users/paranoidq/316-data/polblogs/patterns";
-        Process p = Runtime.getRuntime().exec(cmd);
-        p.waitFor();
+//        String cmd = "/Users/paranoidq/316-data/polblogs/fpgrowth -x -tm -m2 -s90 -v\"|%a\" /Users/paranoidq/316-data/polblogs/trans " +
+//                "/Users/paranoidq/316-data/polblogs/patterns";
+//        Process p = Runtime.getRuntime().exec(cmd);
+//        p.waitFor();
+
+        System.out.println(System.getProperty("os.name"));
     }
 }
