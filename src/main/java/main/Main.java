@@ -18,20 +18,6 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-//            ItemHandler.loadItems();
-//            //WrappedInstances instances = TransHandler.Loader.loadTrans(Constants._TRANS_PATH);
-//
-//            TransSet posTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getPosTransPath(), ClassType.POSITIVE);
-//            TransSet negTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getNegTransPath(), ClassType.NEGATIVE);
-//
-//            TfIdfFilter filter = new TfIdfFilter();
-//            filter.filter(posTransSet, negTransSet);
-//            Set<Integer> remainedItems = filter.getRemainedItems();
-//
-//            // 重新构建Trans
-//            TransHandler.filterTransSet(posTransSet, remainedItems);
-//            TransHandler.filterTransSet(negTransSet, remainedItems);
-
             ItemHandler.loadItems(PathRules.getItemPathAfterTFIDF());
             TransSet posTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getPosTransPathAfterTFIDF(), ClassType.POSITIVE);
             TransSet negTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getNegTransPathAfterTFIDF(), ClassType.NEGATIVE);

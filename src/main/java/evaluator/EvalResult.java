@@ -16,7 +16,7 @@ public class EvalResult {
 
     public EvalResult() {
         this.records = new ArrayList<>();
-        this.max = new Triple(0, 0);
+        this.max = null;
     }
 
     public void addRecord(double precison, double recall) {
@@ -30,7 +30,7 @@ public class EvalResult {
 
     public void printMax() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Utils.doubleToString(max.precision(), WIDTH, DECIMAL)).append(Constants.NEWLINE)
+        sb.append(Utils.doubleToString(max.precision(), WIDTH, DECIMAL)).append(Constants.TAB)
                 .append(Utils.doubleToString(max.recall(), WIDTH, DECIMAL)).append(Constants.TAB)
                 .append(Utils.doubleToString(max.f1(), WIDTH, DECIMAL)).append(Constants.NEWLINE);
         System.out.println(sb.toString());

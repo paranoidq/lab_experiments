@@ -1,6 +1,8 @@
 package beans.trans;
 
 import beans.pattern.ClassType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
@@ -12,23 +14,20 @@ import java.util.*;
 public class Trans {
 
     private List<Integer> items;
+    private Set<Integer> itemsSet;
     private ClassType ct;
 
 
     public Trans(ClassType ct) {
         this.ct = ct;
-        this.items = new LinkedList<>();
-    }
-
-    public Trans copy() {
-        Trans trans = new Trans(this.ct);
-        this.items.forEach(trans::addItemId);
-        return trans;
+        this.items = Lists.newLinkedList();
+        this.itemsSet = Sets.newHashSet();
     }
 
 
     public void addItemId(int itemId){
         this.items.add(itemId);
+        this.itemsSet.add(itemId);
     }
 
     public void setFeats(List<Integer> feats) {
@@ -36,9 +35,11 @@ public class Trans {
         this.items = feats;
     }
 
-    public List<Integer> getItems(){
+    public List<Integer> getItemsAsList(){
         return this.items;
     }
+
+    public Set<Integer> getItemsAsSet() { return this.itemsSet; }
 
     public ClassType getCt() {
         return this.ct;
@@ -62,13 +63,12 @@ public class Trans {
 
 
     /**
-     * 作为list的实现,这种操作很低效
-     * TODO
+     * updated: 使用hash set,提高处理效率
      * @param itemId
      * @return
      */
     public boolean contains(Integer itemId) {
-        return items.contains(itemId);
+        return itemsSet.contains(itemId);
     }
 
 }

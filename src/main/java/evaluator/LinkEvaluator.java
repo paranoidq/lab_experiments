@@ -6,6 +6,7 @@ import beans.pattern.Pattern;
 import beans.trans.Trans;
 import beans.trans.TransSet;
 import handler.InstancesHandler;
+import sun.jvm.hotspot.oops.Instance;
 import util.PathRules;
 import handler.PatternHandler;
 import handler.TransHandler;
@@ -21,7 +22,11 @@ import java.util.*;
  */
 public class LinkEvaluator {
 
-    private EvalResult evalResult;
+    private EvalResult originEvalRssult;
+    private EvalResult fpEvalResult;
+
+
+
     private EvalParams params;
     private TransSet posTransSet;
     private TransSet negTransSet;
@@ -31,7 +36,9 @@ public class LinkEvaluator {
         this.params = params;
         this.posTransSet = posTransSet;
         this.negTransSet = negTransSet;
-        this.evalResult = new EvalResult();
+
+        this.originEvalRssult = new EvalResult();
+        this.fpEvalResult = new EvalResult();
     }
 
 
@@ -70,12 +77,30 @@ public class LinkEvaluator {
             // 过滤
             List<Pattern> filteredPatterns = PatternFilter.filter(train, union.iterator());
 
-            // PU_FS(过滤后)
-            TransHandler.genAugTrans(filteredPatterns, train, test, fold);
-            Instances evalTrain = InstancesHandler.loadInstances(PathRules.getAugTrainPath(fold));
-            Instances evalTest = InstancesHandler.loadInstances(PathRules.getAugTestPath(fold));
+            /**
+             * 原始预测
+             */
+            {
+                TransHandler.genOriginTrans(train, test, fold);
+                Instances evalTrain = InstancesHandler.loadInstances(PathRules.getOriginTrainPath(fold));
+                Instances evalTest  = InstancesHandler.loadInstances(PathRules.getOriginTestPath(fold));
+                evalOrigin(evalTrain, evalTest);
+            }
 
-            eval(evalTrain, evalTest);
+            /**
+             * FP pattern引入后预测
+             */
+            {
+                TransHandler.genAugTrans(filteredPatterns, train, test, fold);
+                Instances evalTrain = InstancesHandler.loadInstances(PathRules.getAugTrainPath(fold));
+                Instances evalTest = InstancesHandler.loadInstances(PathRules.getAugTestPath(fold));
+
+                eval(evalTrain, evalTest);
+            }
+
+            /**
+             * TODO Cosine pattern引入后预测
+             */
 
             union.clear();
         }
@@ -86,7 +111,8 @@ public class LinkEvaluator {
     public void printResult() {
         System.out.println("-------------\n");
         System.out.println("Precision \t Recall \t F1 \n");
-        evalResult.printMax();
+        originEvalRssult.printMax();
+        fpEvalResult.printMax();
         System.out.println("-------------\n");
     }
 
@@ -97,7 +123,16 @@ public class LinkEvaluator {
         Classifier cls = AbstractClassifier.makeCopy(params.getClassifier());
         cls.buildClassifier(train);
         evaluation.evaluateModel(cls, test);
-        evalResult.addRecord(evaluation.weightedPrecision(), evaluation.weightedRecall());
+        fpEvalResult.addRecord(evaluation.weightedPrecision(), evaluation.weightedRecall());
+    }
+
+    private void evalOrigin(Instances train, Instances test) throws Exception {
+        Evaluation evaluation = new Evaluation(train);
+        evaluation.setPriors(train); // TODO ???
+        Classifier cls = AbstractClassifier.makeCopy(params.getClassifier());
+        cls.buildClassifier(train);
+        evaluation.evaluateModel(cls, test);
+        originEvalRssult.addRecord(evaluation.weightedPrecision(), evaluation.weightedRecall());
     }
 
     private void calAndSetDx(List<Pattern> patterns,

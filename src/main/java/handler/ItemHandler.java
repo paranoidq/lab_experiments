@@ -42,10 +42,10 @@ public class ItemHandler {
     public static void writeFilteredItems(TransSet posTransSet, TransSet negTransSet) {
         Set<Integer> itemIdsSet = new HashSet<>();
         for (Trans trans : posTransSet.getTransSet()) {
-            itemIdsSet.addAll(trans.getItems());
+            itemIdsSet.addAll(trans.getItemsAsList());
         }
         for (Trans trans : negTransSet.getTransSet()) {
-            itemIdsSet.addAll(trans.getItems());
+            itemIdsSet.addAll(trans.getItemsAsList());
         }
         List<Integer> list = new ArrayList<>(itemIdsSet);
         Collections.sort(list);

@@ -1,11 +1,11 @@
 package beans.pattern;
 
 import beans.trans.Trans;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by paranoidq on 16/3/7.
@@ -16,6 +16,9 @@ public class Pattern {
     private int id;
     // pattern items
     private List<Integer> items;
+    // pattern items (set)
+    private Set<Integer> itemsSet;
+
     // pattern所属的类别
     private ClassType class4Pattern;
 
@@ -29,6 +32,7 @@ public class Pattern {
 
     public Pattern() {
         this.items = new LinkedList<>();
+        this.itemsSet = new HashSet<>();
     }
 
     /**
@@ -37,7 +41,8 @@ public class Pattern {
      * @return
      */
     public boolean cover(Trans trans) {
-        return CollectionUtils.isSubCollection(items, trans.getItems());
+        // return CollectionUtils.isSubCollection(items, trans.getItemsAsList());
+        return trans.getItemsAsSet().containsAll(itemsSet);
     }
 
     /**
@@ -50,6 +55,7 @@ public class Pattern {
 
     public void addItem(Integer itemId) {
         this.items.add(itemId);
+        this.itemsSet.add(itemId);
     }
 
     public void setClass4Pattern(ClassType class4Pattern) {

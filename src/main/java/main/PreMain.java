@@ -24,21 +24,6 @@ public class PreMain {
         try {
             ItemHandler.loadItems(PathRules.getItemPath());
 
-//            TransSet posTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getPosTransPath(), ClassType.POSITIVE);
-//            TransSet negTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getNegTransPath(), ClassType.NEGATIVE);
-
-//            TfIdfFilter filter = new TfIdfFilter();
-//            filter.filter(posTransSet, negTransSet);
-//            Set<Integer> remainedItems = filter.getRemainedItems();
-//
-//            // 重新构建Trans
-//            TransHandler.filterTransSet(posTransSet, negTransSet, remainedItems);
-//            // 写入filtered_trans文件
-//            TransHandler.writeTrans(posTransSet, PathRules.getPosTransPathAfterTFIDF(),
-//                    negTransSet, PathRules.getNegTransPathAfterTFIDF());
-//            // 写入filtered_items文件
-//            ItemHandler.writeItems(remainedItems, PathRules.getItemPathAfterTFIDF());
-
             Map<Integer, Set<Integer>> feats = FeatsHandler.loadFeats(PathRules.getFeatsPath());
             Map<Integer, List<Integer>> filteredFeats = FeatsHandler.filterByTFIDF(feats);
 

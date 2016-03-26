@@ -40,15 +40,20 @@ public class PatternFilter {
         List<Pattern> filtered = new LinkedList<>();
 
         double threshold = transSet.size() * coverage;
-        Set<Trans> coveredInstances = new HashSet<>();
+        Set<Integer> coveredInstances = new HashSet<>();
         while (iterator.hasNext()) {
             Pattern pattern = iterator.next();
             if ((double)coveredInstances.size() >= threshold) {
                 break;
             }
-            coveredInstances.addAll(
-                    transSet.getTransSet().stream().filter(trans -> pattern.cover(trans))
-                            .collect(Collectors.toList()));
+//            coveredInstances.addAll(
+//                    transSet.getTransSet().stream().filter(trans -> pattern.cover(trans))
+//                            .collect(Collectors.toList()));
+            for (int i=0; i<transSet.getTransSet().size(); i++) {
+                if (pattern.cover(transSet.getTransSet().get(i))) {
+                    coveredInstances.add(i);
+                }
+            }
             filtered.add(pattern);
         }
         return filtered;

@@ -23,4 +23,14 @@ public class FileUtil {
                 new FileOutputStream(path), Constants.UTF8));
         return bw;
     }
+
+    public static BufferedWriter writeFileAppendly(String path) throws IOException {
+        File file = new File(path);
+        if (!file.exists() && !file.isDirectory()) {
+            file.getParentFile().mkdirs();
+        }
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(path, true), Constants.UTF8));
+        return bw;
+    }
 }

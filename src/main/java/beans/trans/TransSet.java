@@ -2,7 +2,12 @@ package beans.trans;
 
 import beans.pattern.ClassType;
 import beans.pattern.Pattern;
+import com.google.common.collect.Lists;
+import util.FileUtil;
+import util.PathRules;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -14,7 +19,7 @@ public class TransSet {
 
 
     public TransSet() {
-        this.transSet = new ArrayList<>();
+        this.transSet = Lists.newArrayList();
     }
 
     public void addTrans(Trans trans) {
@@ -22,7 +27,6 @@ public class TransSet {
     }
 
     /**
-     * TODO: size的复杂度依赖于transSet的具体实现
      * @return
      */
     public int size() {
@@ -46,20 +50,14 @@ public class TransSet {
         if (fold == 0) {
             TransSet trainCV = new TransSet();
             List<Trans> transSubset = transSet.subList(part, size);
-            for (Trans trans : transSubset) {
-                trainCV.addTrans(trans.copy());
-            }
+            transSubset.forEach(trainCV::addTrans);
             return trainCV;
         } else {
             TransSet trainCV = new TransSet();
             List<Trans> transSubset = transSet.subList(0, fold*part);
-            for (Trans trans : transSubset) {
-                trainCV.addTrans(trans.copy());
-            }
+            transSubset.forEach(trainCV::addTrans);
             transSubset = transSet.subList((fold+1)*part, size);
-            for (Trans trans : transSubset) {
-                trainCV.addTrans(trans.copy());
-            }
+            transSubset.forEach(trainCV::addTrans);
             return trainCV;
         }
     }
@@ -86,7 +84,7 @@ public class TransSet {
         TransSet testCV = new TransSet();
         List<Trans> transSubset = transSet.subList(start, end);
         for (Trans trans : transSubset) {
-            testCV.addTrans(trans.copy());
+            testCV.addTrans(trans);
         }
         return testCV;
     }
@@ -103,8 +101,13 @@ public class TransSet {
         posTransSet.getTransSet().forEach(union::addTrans);
         negTransSet.getTransSet().forEach(union::addTrans);
 
+        long seed = System.nanoTime();
+        // 记录random seed
+        writeRandomSeed(seed);
+
         // shuffle
-        Collections.shuffle(union.getTransSet(), new Random(System.nanoTime()));
+        Collections.shuffle(union.getTransSet(), new Random(seed));
+
         return union;
     }
 
@@ -127,15 +130,14 @@ public class TransSet {
         }
     }
 
-
-    public int termDocCount(Integer itemId) {
-        int termCount = 0;
-        for (Trans trans : transSet) {
-            if (trans.contains(itemId)) {
-                ++termCount;
-            }
+    public static void writeRandomSeed(long seed) {
+        try (BufferedWriter bw = FileUtil.writeFileAppendly(PathRules.getRandomSeedPath())) {
+            Date time = Calendar.getInstance().getTime();
+            bw.write(time + "||" + seed);
+            bw.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return termCount;
     }
 
 }

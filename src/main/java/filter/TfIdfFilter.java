@@ -93,7 +93,7 @@ public class TfIdfFilter {
     private Map<Integer, Integer> calTermCounts(TransSet transSet) {
         Map<Integer, Integer> termsCount = new HashMap<>();
         for (Trans trans : transSet.getTransSet()) {
-            for (Integer itemId : trans.getItems()) {
+            for (Integer itemId : trans.getItemsAsList()) {
                 if (termsCount.containsKey(itemId)) {
                     termsCount.put(itemId, termsCount.get(itemId) + 1);
                 } else {

@@ -91,10 +91,20 @@ public class PathRules {
         return _PREFIX + File.separator + fold + File.separator + "aug_test";
     }
 
-    public static String getPatternsPATH(int fold, ClassType classType) {
+    public static String getOriginTrainPath(int fold) {
+        return _PREFIX + File.separator + fold + File.separator + "origin_train";
+    }
+    public static String getOriginTestPath(int fold) {
+        return _PREFIX + File.separator + fold + File.separator + "origin_test";
+    }
+
+    public static String getPatternsPath(int fold, ClassType classType) {
         return _PREFIX + File.separator + fold + File.separator + "patterns"
                 + File.separator + classType.toString();
     }
 
+    public static String getRandomSeedPath() {
+        return _PREFIX + File.separator + "random_seeds";
+    }
 
 }

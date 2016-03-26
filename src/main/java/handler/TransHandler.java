@@ -19,18 +19,25 @@ import java.util.stream.Collectors;
 
 /**
  * TransHandler
- *
+ * <p>
  * 非对齐的数据,用itemId表示,不能用于最终的evaluator分类,
  * 需要经过InstancesHandler加载到Instances类中才能用于分类
- *
+ * <p>
  * Created by paranoidq on 16/3/12.
  */
 public class TransHandler {
+    private static Map<Integer, Integer> newID2id;
+
+    static {
+        newID2id = Item.map2NewId();
+    }
+
 
     /**
      * 生成挖掘pattern所需的trans
+     * <p>
+     * 直接将每个trans的itemId写入文件即可
      *
-     *      直接将每个trans的itemId写入文件即可
      * @param transList
      * @param fold
      * @param classType
@@ -47,10 +54,10 @@ public class TransHandler {
 
     /**
      * 根据pattern扩充原有的instances,并写入文件
-     *
-     *      1. 为filtered_items和pattern统一指定ID
-     *      2. 将trans映射为等长的instances
-     *      3. 写入id和instances
+     * <p>
+     * 1. 为filtered_items和pattern统一指定ID
+     * 2. 将trans映射为等长的instances
+     * 3. 写入id和instances
      *
      * @param patterns
      * @param train
@@ -61,7 +68,6 @@ public class TransHandler {
         String augTrainPath = PathRules.getAugTrainPath(fold);
         String augTestPath = PathRules.getAugTestPath(fold);
 
-        Map<Integer, Integer> newID2id = Item.map2NewId();
         int itemCount = newID2id.size();
 
         BufferedWriter bw = FileUtil.writeFile(augTrainPath);
@@ -115,6 +121,50 @@ public class TransHandler {
     }
 
 
+    public static void genOriginTrans(TransSet train, TransSet test, int fold) throws IOException {
+        String originTrainPath = PathRules.getOriginTrainPath(fold);
+        String originTestPath = PathRules.getOriginTestPath(fold);
+
+        int itemCount = newID2id.size();
+
+        BufferedWriter bw = FileUtil.writeFile(originTrainPath);
+        writeOriginHeader(bw, itemCount);
+        for (Trans trans : train.getTransSet()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < itemCount; i++) {
+                if (trans.contains(newID2id.get(i))) {
+                    sb.append("1,");
+                } else {
+                    sb.append("0,");
+                }
+            }
+            sb.append(trans.getCt().toString());
+            bw.write(sb.toString());
+            bw.newLine();
+        }
+        bw.flush();
+
+        bw = FileUtil.writeFile(originTestPath);
+        writeOriginHeader(bw, itemCount);
+        for (Trans trans : test.getTransSet()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < itemCount; i++) {
+                if (trans.contains(newID2id.get(i))) {
+                    sb.append("1,");
+                } else {
+                    sb.append("0,");
+                }
+            }
+            sb.append(trans.getCt().toString());
+            bw.write(sb.toString());
+            bw.newLine();
+        }
+        bw.flush(); // 这里必须flush,否则trans生成不完全....
+        bw.close();
+    }
+
+
+    private static int INCREMENT_TRANS_ID = -1;
     /**
      * 加载过滤之后生成的trans
      * @param path
@@ -127,7 +177,7 @@ public class TransHandler {
 
         BufferedReader br = FileUtil.readFile(path);
         String line;
-        while( (line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null) {
             String[] sp = StringUtils.strip(line).split(",");
             Trans trans = new Trans(ct);
             for (String str : sp) {
@@ -141,7 +191,8 @@ public class TransHandler {
 
     /**
      * 随机产生50%的posTrans
-     *      会shuffle输入的edges list
+     * 会shuffle输入的edges list
+     *
      * @param filteredUidFeats
      * @param edges
      * @return
@@ -150,7 +201,7 @@ public class TransHandler {
                                                List<Edge> edges) {
         TransSet transSet = new TransSet();
         Collections.shuffle(edges, new Random(System.nanoTime()));
-        List<Edge> sub = edges.subList(0, edges.size()/2);
+        List<Edge> sub = edges.subList(0, edges.size() / 2);
         List<Edge> pickedEdges = new LinkedList<>();
         for (Edge edge : sub) {
             Trans trans = new Trans(ClassType.POSITIVE);
@@ -179,13 +230,13 @@ public class TransHandler {
         List<Edge> pickedEdges = new LinkedList<>();
 
         TransSet transSet = new TransSet();
-        int maxUid = filteredUidFeats.size()-1;
+        int maxUid = filteredUidFeats.size() - 1;
         Random random = new Random(System.nanoTime());
         int curCount = 0;
         while (curCount < count) {
-            int id1 = random.nextInt(maxUid+1);
-            int id2 = random.nextInt(maxUid+1);
-            if (id1 != id2 && !linked.contains(candidateEdge(id1,id2))) {
+            int id1 = random.nextInt(maxUid + 1);
+            int id2 = random.nextInt(maxUid + 1);
+            if (id1 != id2 && !linked.contains(candidateEdge(id1, id2))) {
                 Trans trans = new Trans(ClassType.NEGATIVE);
                 List<Integer> feats1 = filteredUidFeats.get(id1);
                 List<Integer> feats2 = filteredUidFeats.get(id2);
@@ -205,12 +256,13 @@ public class TransHandler {
     }
 
     private static String candidateEdge(int id1, int id2) {
-        return id1<id2 ? ""+id1+","+id2 : ""+id2+","+id1;
+        return id1 < id2 ? "" + id1 + "," + id2 : "" + id2 + "," + id1;
     }
 
 
     /**
      * 将trans写入指定的文件路径
+     *
      * @param transSet
      * @param path
      */
@@ -235,6 +287,19 @@ public class TransHandler {
         }
         for (int i = 0; i < patternCount; i++) {
             bw.write("@attribute pattern" + i + " {0, 1}");
+            bw.newLine();
+        }
+        bw.write("@attribute class {POSITIVE, NEGATIVE}");
+        bw.newLine();
+        bw.write("@data");
+        bw.newLine();
+    }
+
+    public static void writeOriginHeader(BufferedWriter bw, int itemCount) throws IOException {
+        bw.write("@relation polblogs");
+        bw.newLine();
+        for (int i = 0; i < itemCount; i++) {
+            bw.write("@attribute item" + i + " {0, 1}");
             bw.newLine();
         }
         bw.write("@attribute class {POSITIVE, NEGATIVE}");

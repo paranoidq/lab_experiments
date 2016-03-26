@@ -26,7 +26,7 @@ public class PatternHandler {
     public static List<Pattern> loadFpPatterns(int fold, ClassType ct) throws IOException {
         List<Pattern> patternList = new LinkedList<>();
 
-        String patternPath = PathRules.getPatternsPATH(fold, ct);
+        String patternPath = PathRules.getPatternsPath(fold, ct);
         BufferedReader br = FileUtil.readFile(patternPath);
         String line;
         while ( (line = br.readLine()) != null) {
@@ -56,7 +56,7 @@ public class PatternHandler {
         TransHandler.genTrans4Mine(trans, fold, classType);
 
         String transPath = PathRules.getTrans4MinePath(fold, classType);
-        String patternsPath = PathRules.getPatternsPATH(fold, classType);
+        String patternsPath = PathRules.getPatternsPath(fold, classType);
 
         File file = new File(patternsPath);
         if (!file.exists()) {
