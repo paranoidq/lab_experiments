@@ -64,26 +64,26 @@ public class PatternHandler {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
+        Process p;
         if (System.getProperty("os.name").equals("Mac OS X")) {
             ProcessBuilder pb = new ProcessBuilder("./run_fp.sh", Integer.toString(ParamConstants.PATTERN_MIN_LEN),
                     Double.toString(ParamConstants.MIN_SUPPORT_FP),
                     transPath,
                     patternsPath);
             pb.directory(new File("/Users/paranoidq/316-data/polblogs2"));
-            Process p = pb.start();
-
-            String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            while( (line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-            System.out.println();
+            p = pb.start();
             p.waitFor();
         } else {
             String cmd = PatternCmdRules.getFpPatternCmd(transPath, patternsPath);
-            Process p = Runtime.getRuntime().exec(cmd);
+            p = Runtime.getRuntime().exec(cmd);
             p.waitFor();
         }
+        String line;
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        while( (line = br.readLine()) != null) {
+            System.out.println(line);
+        }
+        System.out.println();
     }
 
 
@@ -100,26 +100,26 @@ public class PatternHandler {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
+        Process p;
         if (System.getProperty("os.name").equals("Mac OS X")) {
             ProcessBuilder pb = new ProcessBuilder("./run_cosine.sh", Integer.toString(ParamConstants.PATTERN_MIN_LEN),
                     Double.toString(ParamConstants.MIN_SUPPORT_COSINE), Double.toString(ParamConstants.COSINE),
                     transPath,
                     patternsPath);
             pb.directory(new File("/Users/paranoidq/316-data/polblogs2"));
-            Process p = pb.start();
-
-            String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            while( (line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-            System.out.println();
+            p = pb.start();
             p.waitFor();
         } else {
             String cmd = PatternCmdRules.getCosinePatternCmd(transPath, patternsPath);
-            Process p = Runtime.getRuntime().exec(cmd);
+            p = Runtime.getRuntime().exec(cmd);
             p.waitFor();
         }
+        String line;
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        while( (line = br.readLine()) != null) {
+            System.out.println(line);
+        }
+        System.out.println();
     }
 
     public static List<Pattern> loadCosinePatterns(int fold, ClassType ct) throws IOException {
@@ -134,7 +134,7 @@ public class PatternHandler {
 
             String[] sp2= sp[1].split(Constants.TAB);
             int support = Integer.parseInt(sp2[0]);
-            double cosine = Integer.parseInt(sp2[1]);
+            double cosine = Double.parseDouble(sp2[1]);
 
             String[] items = sp[0].split(Constants.PATTERN_ENTRY_SPLIT);
 

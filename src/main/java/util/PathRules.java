@@ -11,7 +11,8 @@ import java.io.File;
  */
 public class PathRules {
 
-    private static final String _PREFIX = "/Users/paranoidq/316-data/polblogs2";
+    // private static final String _PREFIX = "/Users/paranoidq/316-data/polblogs2";
+    private static final String _PREFIX = ParamConstants._PREFIX;
 
 
     /**
