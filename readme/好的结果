@@ -1,0 +1,17 @@
+double COVERAGE_DELTA = 0.8;
+// evaluator
+int NUM_FOLDS = 4;
+double TRAIN_RATIO = 0.5;
+
+// fp_growth
+int PATTERN_MIN_LEN = 2;
+double MIN_SUPPORT = 15;
+
+Precision 	 Recall 	 F1
+
+ 0.7451	 0.7312	 0.7381
+
+ 0.7586	 0.7384	 0.7484
+
+seed = 361076931214634
+++++++++++++++++++++++++++++++++++++++

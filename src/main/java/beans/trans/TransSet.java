@@ -4,6 +4,7 @@ import beans.pattern.ClassType;
 import beans.pattern.Pattern;
 import com.google.common.collect.Lists;
 import util.FileUtil;
+import util.ParamConstants;
 import util.PathRules;
 
 import java.io.BufferedWriter;
@@ -101,12 +102,12 @@ public class TransSet {
         posTransSet.getTransSet().forEach(union::addTrans);
         negTransSet.getTransSet().forEach(union::addTrans);
 
-        long seed = System.nanoTime();
+
         // 记录random seed
-        writeRandomSeed(seed);
+        writeRandomSeed(ParamConstants.seed);
 
         // shuffle
-        Collections.shuffle(union.getTransSet(), new Random(seed));
+        Collections.shuffle(union.getTransSet(), new Random(ParamConstants.seed));
 
         return union;
     }
@@ -135,6 +136,7 @@ public class TransSet {
             Date time = Calendar.getInstance().getTime();
             bw.write(time + "||" + seed);
             bw.newLine();
+            bw.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

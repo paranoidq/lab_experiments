@@ -6,7 +6,6 @@ import beans.pattern.Pattern;
 import beans.trans.Trans;
 import beans.trans.TransSet;
 import handler.InstancesHandler;
-import sun.jvm.hotspot.oops.Instance;
 import util.PathRules;
 import handler.PatternHandler;
 import handler.TransHandler;
@@ -49,10 +48,7 @@ public class LinkEvaluator {
             TransSet train = allTransSet.trainCV(numFolds, fold);
             TransSet test = allTransSet.testCV(numFolds, fold);
 
-            // @updated 改用TreeSet
-            SortedSet<Pattern> union = new TreeSet<>((p1, p2) -> {
-                return Double.compare(p2.getDxValue(), p1.getDxValue());
-            });
+            Set<Pattern> union = new HashSet<>();
 
             // 划分类别
             Map<ClassType, List<Trans>> map2Class = train.map2Class();
@@ -61,7 +57,7 @@ public class LinkEvaluator {
             for (ClassType ct : ClassType.values()) {
                 List<Trans> transList = map2Class.get(ct);
                 // 1. 挖pattern
-                PatternHandler.genPatterns(transList, fold, ct);
+                PatternHandler.genFpPatterns(transList, fold, ct);
                 List<Pattern> patterns = PatternHandler.loadFpPatterns(fold, ct);
 
                 // 2. 计算D(X)的值
@@ -71,11 +67,16 @@ public class LinkEvaluator {
                 calAndSetDx(patterns, allTransSet);
 
                 // 3. 合并到union
-                union.addAll(patterns); // TODO 如果一个pattern既从c1上挖出,也从c2上挖出,怎么办?
+                for (Pattern pattern : patterns) {
+                    union.add(pattern);
+                }
+                //union.addAll(patterns); // TODO 如果一个pattern既从c1上挖出,也从c2上挖出,怎么办?
             }
 
+            List<Pattern> allPats = new ArrayList<>(union);
+            Collections.sort(allPats, (o1, o2) -> Double.compare(o2.getDxValue(), o1.getDxValue()));
             // 过滤
-            List<Pattern> filteredPatterns = PatternFilter.filter(train, union.iterator());
+            List<Pattern> filteredPatterns = PatternFilter.filter(allTransSet, allPats, fold);
 
             /**
              * 原始预测

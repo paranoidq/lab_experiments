@@ -55,6 +55,10 @@ public class Item {
         return "" + this.id + "," + this.name;
     }
 
+    public String repr() {
+        return this.name;
+    }
+
     public static Map<Integer, Integer> map2NewId() {
         Map<Integer, Integer> newID2IdMap = new HashMap<>();
 

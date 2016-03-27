@@ -107,4 +107,11 @@ public class PathRules {
         return _PREFIX + File.separator + "random_seeds";
     }
 
+
+    public static String getFilteredPatternPath(int fold) {
+        return _PREFIX + File.separator + fold + File.separator + "filtered_patterns";
+    }
+    public static String getFilteredPatternReprPath(int fold) {
+        return _PREFIX + File.separator + fold + File.separator + "filtered_patterns_repr";
+    }
 }

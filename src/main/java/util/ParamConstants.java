@@ -9,6 +9,8 @@ import weka.classifiers.bayes.NaiveBayesMultinomial;
  */
 public interface ParamConstants {
 
+    long seed = System.nanoTime();
+
     // 分类器
     Classifier classifier = new NaiveBayes();
 
@@ -22,7 +24,7 @@ public interface ParamConstants {
 
     // fp_growth
     int PATTERN_MIN_LEN = 2;
-    double MIN_SUPPORT = 30;
+    double MIN_SUPPORT = 15;
     String FP_EXE_PATH = "fp_growth.exe";
 
 

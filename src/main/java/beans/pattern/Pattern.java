@@ -1,9 +1,13 @@
 package beans.pattern;
 
+import beans.trans.Item;
 import beans.trans.Trans;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
+import com.sun.tools.internal.jxc.ap.Const;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import util.Constants;
 
 import java.util.*;
 
@@ -98,5 +102,31 @@ public class Pattern {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Integer itemId : items) {
+            sb.append(Integer.toString(itemId) + StringUtils.SPACE);
+        }
+        sb.replace(sb.length() - 1, sb.length(), Constants.COMMA);
+        sb.append("suppL=" + suppL).append(Constants.COMMA).append("suppD=" + suppD)
+                .append(Constants.COMMA).append("Dx=" + DxValue)
+                .append(Constants.COMMA).append("From=" + class4Pattern.toString());
+        return sb.toString();
+    }
+
+    public String repr() {
+        StringBuilder sb = new StringBuilder();
+        for (Integer itemId : items) {
+            sb.append(Item.getItem(itemId).repr() + StringUtils.SPACE);
+        }
+        sb.replace(sb.length() - 1, sb.length(), Constants.COMMA);
+        sb.append("suppL=" + suppL).append(Constants.COMMA).append("suppD=" + suppD)
+                .append(Constants.COMMA).append("Dx=" + DxValue)
+                .append(Constants.COMMA).append("From=" + class4Pattern.toString());
+        return sb.toString();
     }
 }

@@ -52,7 +52,7 @@ public class PatternHandler {
     }
 
 
-    public static void genPatterns(List<Trans> trans, int fold, ClassType classType) throws Exception {
+    public static void genFpPatterns(List<Trans> trans, int fold, ClassType classType) throws Exception {
         TransHandler.genTrans4Mine(trans, fold, classType);
 
         String transPath = PathRules.getTrans4MinePath(fold, classType);
