@@ -1,6 +1,8 @@
 package util;
 
 import beans.pattern.ClassType;
+import beans.pattern.Pattern;
+import beans.pattern.PatternType;
 
 import java.io.File;
 
@@ -84,11 +86,17 @@ public class PathRules {
 
     }
 
-    public static String getAugTrainPath(int fold) {
-        return _PREFIX + File.separator + fold + File.separator + "aug_train";
+    public static String getAugTrainPath(int fold, PatternType pt) {
+        if (pt == PatternType.FP)
+            return _PREFIX + File.separator + fold + File.separator + "fp_aug_train";
+        else
+            return _PREFIX + File.separator + fold + File.separator + "cosine_aug_train";
     }
-    public static String getAugTestPath(int fold) {
-        return _PREFIX + File.separator + fold + File.separator + "aug_test";
+    public static String getAugTestPath(int fold, PatternType pt) {
+        if (pt == PatternType.FP)
+            return _PREFIX + File.separator + fold + File.separator + "fp_aug_test";
+        else
+            return _PREFIX + File.separator + fold + File.separator + "cosine_aug_test";
     }
 
     public static String getOriginTrainPath(int fold) {
@@ -98,9 +106,9 @@ public class PathRules {
         return _PREFIX + File.separator + fold + File.separator + "origin_test";
     }
 
-    public static String getPatternsPath(int fold, ClassType classType) {
+    public static String getPatternsPath(int fold, ClassType classType, PatternType pt) {
         return _PREFIX + File.separator + fold + File.separator + "patterns"
-                + File.separator + classType.toString();
+                + File.separator + pt.toString() + File.separator + classType.toString();
     }
 
     public static String getRandomSeedPath() {
@@ -108,10 +116,16 @@ public class PathRules {
     }
 
 
-    public static String getFilteredPatternPath(int fold) {
-        return _PREFIX + File.separator + fold + File.separator + "filtered_patterns";
+    public static String getFilteredPatternPath(int fold, PatternType pt) {
+        if (pt == PatternType.FP)
+            return _PREFIX + File.separator + fold + File.separator + "fp_filtered_patterns";
+        else
+            return _PREFIX + File.separator + fold + File.separator + "cosine_filtered_patterns";
     }
-    public static String getFilteredPatternReprPath(int fold) {
-        return _PREFIX + File.separator + fold + File.separator + "filtered_patterns_repr";
+    public static String getFilteredPatternReprPath(int fold, PatternType pt) {
+        if (pt == PatternType.FP)
+            return _PREFIX + File.separator + fold + File.separator + "fp_filtered_patterns_repr";
+        else
+            return _PREFIX + File.separator + fold + File.separator + "cosine_filtered_patterns_repr";
     }
 }

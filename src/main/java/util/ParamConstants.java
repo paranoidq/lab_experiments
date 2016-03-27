@@ -24,8 +24,12 @@ public interface ParamConstants {
 
     // fp_growth
     int PATTERN_MIN_LEN = 2;
-    double MIN_SUPPORT = 15;
+    double MIN_SUPPORT_FP = 15;
     String FP_EXE_PATH = "fp_growth.exe";
+
+    // cosine
+    double MIN_SUPPORT_COSINE = 15;
+    double COSINE = 0.6;
 
 
     // TFIDF过滤参数, 即每篇文章的feats留下80%的词汇

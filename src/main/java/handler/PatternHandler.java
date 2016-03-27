@@ -1,7 +1,9 @@
 package handler;
 
 import beans.pattern.ClassType;
+import beans.pattern.CosinePattern;
 import beans.pattern.Pattern;
+import beans.pattern.PatternType;
 import beans.trans.Trans;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,7 +28,7 @@ public class PatternHandler {
     public static List<Pattern> loadFpPatterns(int fold, ClassType ct) throws IOException {
         List<Pattern> patternList = new LinkedList<>();
 
-        String patternPath = PathRules.getPatternsPath(fold, ct);
+        String patternPath = PathRules.getPatternsPath(fold, ct, PatternType.FP);
         BufferedReader br = FileUtil.readFile(patternPath);
         String line;
         while ( (line = br.readLine()) != null) {
@@ -56,7 +58,7 @@ public class PatternHandler {
         TransHandler.genTrans4Mine(trans, fold, classType);
 
         String transPath = PathRules.getTrans4MinePath(fold, classType);
-        String patternsPath = PathRules.getPatternsPath(fold, classType);
+        String patternsPath = PathRules.getPatternsPath(fold, classType, PatternType.FP);
 
         File file = new File(patternsPath);
         if (!file.exists()) {
@@ -64,7 +66,7 @@ public class PatternHandler {
         }
         if (System.getProperty("os.name").equals("Mac OS X")) {
             ProcessBuilder pb = new ProcessBuilder("./run_fp.sh", Integer.toString(ParamConstants.PATTERN_MIN_LEN),
-                    Double.toString(ParamConstants.MIN_SUPPORT),
+                    Double.toString(ParamConstants.MIN_SUPPORT_FP),
                     transPath,
                     patternsPath);
             pb.directory(new File("/Users/paranoidq/316-data/polblogs2"));
@@ -85,5 +87,71 @@ public class PatternHandler {
     }
 
 
+    public static void genCosinePatterns(List<Trans> trans, int fold, ClassType ct) throws IOException, InterruptedException {
+        /**
+         * fp部分已经gen过了,这里不需要再次gen
+         */
+        //TransHandler.genTrans4Mine(trans, fold, ct);
+
+        String transPath = PathRules.getTrans4MinePath(fold, ct);
+        String patternsPath = PathRules.getPatternsPath(fold, ct, PatternType.COSINE);
+
+        File file = new File(patternsPath);
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+        }
+        if (System.getProperty("os.name").equals("Mac OS X")) {
+            ProcessBuilder pb = new ProcessBuilder("./run_cosine.sh", Integer.toString(ParamConstants.PATTERN_MIN_LEN),
+                    Double.toString(ParamConstants.MIN_SUPPORT_COSINE), Double.toString(ParamConstants.COSINE),
+                    transPath,
+                    patternsPath);
+            pb.directory(new File("/Users/paranoidq/316-data/polblogs2"));
+            Process p = pb.start();
+
+            String line;
+            BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            while( (line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+            System.out.println();
+            p.waitFor();
+        } else {
+            String cmd = PatternCmdRules.getCosinePatternCmd(transPath, patternsPath);
+            Process p = Runtime.getRuntime().exec(cmd);
+            p.waitFor();
+        }
+    }
+
+    public static List<Pattern> loadCosinePatterns(int fold, ClassType ct) throws IOException {
+        List<Pattern> patternList = new LinkedList<>();
+
+        String patternPath = PathRules.getPatternsPath(fold, ct, PatternType.COSINE);
+        BufferedReader br = FileUtil.readFile(patternPath);
+        String line;
+        while ( (line = br.readLine()) != null) {
+            CosinePattern pattern = new CosinePattern();
+            String[] sp = line.split(Constants.PATTERN_FEQ_SPLIT);
+
+            String[] sp2= sp[1].split(Constants.TAB);
+            int support = Integer.parseInt(sp2[0]);
+            double cosine = Integer.parseInt(sp2[1]);
+
+            String[] items = sp[0].split(Constants.PATTERN_ENTRY_SPLIT);
+
+            for (String idStr : items) {
+                if(idStr.equals(StringUtils.EMPTY)) {
+                    logger.error("loadInstances puPattern bug: [" + items.toString() + "]");
+                }
+                pattern.addItem(Integer.parseInt(idStr));
+            }
+
+            pattern.setClass4Pattern(ct);   // 设置pattern是从那个类别中挖出来的
+            pattern.setSuppL(support);      // 设置supportL值
+            pattern.setCosine(cosine);
+            pattern.setId(++INCREMENT_PAT_ID);
+            patternList.add(pattern);
+        }
+        return patternList;
+    }
 
 }

@@ -125,7 +125,7 @@ public class TransSet {
     }
 
 
-    public void calSuppD(List<Pattern> patterns) {
+    public void calSuppD(List<? extends Pattern> patterns) {
         for (Trans trans : this.transSet) {
             patterns.stream().filter(pattern -> pattern.cover(trans)).forEach(Pattern::incrementSuppD);
         }

@@ -57,6 +57,10 @@ public class Pattern {
     }
 
 
+    public List<Integer> getItems() {
+        return this.items;
+    }
+
     public void addItem(Integer itemId) {
         this.items.add(itemId);
         this.itemsSet.add(itemId);
@@ -64,6 +68,9 @@ public class Pattern {
 
     public void setClass4Pattern(ClassType class4Pattern) {
         this.class4Pattern = class4Pattern;
+    }
+    public ClassType getClass4Pattern() {
+        return this.class4Pattern;
     }
 
     public double getDxValue() {

@@ -3,6 +3,7 @@ package handler;
 import beans.Edge;
 import beans.pattern.ClassType;
 import beans.pattern.Pattern;
+import beans.pattern.PatternType;
 import beans.trans.Item;
 import beans.trans.Trans;
 import beans.trans.TransSet;
@@ -64,9 +65,9 @@ public class TransHandler {
      * @param test
      * @param fold
      */
-    public static void genAugTrans(List<Pattern> patterns, TransSet train, TransSet test, int fold) throws IOException {
-        String augTrainPath = PathRules.getAugTrainPath(fold);
-        String augTestPath = PathRules.getAugTestPath(fold);
+    public static void genAugTrans(List<Pattern> patterns, TransSet train, TransSet test, int fold, PatternType pt) throws IOException {
+        String augTrainPath = PathRules.getAugTrainPath(fold, pt);
+        String augTestPath = PathRules.getAugTestPath(fold, pt);
 
         int itemCount = newID2id.size();
 

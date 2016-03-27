@@ -1,6 +1,7 @@
 package filter;
 
 import beans.pattern.Pattern;
+import beans.pattern.PatternType;
 import beans.trans.Trans;
 import beans.trans.TransSet;
 import util.FileUtil;
@@ -26,8 +27,8 @@ public class PatternFilter {
      * @param patterns
      * @return
      */
-    public static List<Pattern> filter(TransSet transSet, List<Pattern> patterns, int fold) {
-        return filterByCoverage(transSet, patterns, fold, ParamConstants.COVERAGE_DELTA);
+    public static List<Pattern> filter(TransSet transSet, List<Pattern> patterns, int fold, PatternType pt) {
+        return filterByCoverage(transSet, patterns, pt, fold, ParamConstants.COVERAGE_DELTA);
     }
 
 
@@ -41,7 +42,7 @@ public class PatternFilter {
      * @param coverage
      * @return
      */
-    private static List<Pattern> filterByCoverage(TransSet transSet, List<Pattern> patterns, int fold,
+    private static List<Pattern> filterByCoverage(TransSet transSet, List<Pattern> patterns, PatternType pt, int fold,
                                                   double coverage) {
         List<Pattern> filtered = new LinkedList<>();
 
@@ -64,14 +65,14 @@ public class PatternFilter {
             }
             filtered.add(pattern);
         }
-        writeFilteredPatterns(filtered, total, fold);
+        writeFilteredPatterns(filtered, total, fold, pt);
 
         return filtered;
     }
 
-    private static void writeFilteredPatterns(List<Pattern> filtered, int total, int fold) {
-        String path = PathRules.getFilteredPatternPath(fold);
-        String reprPath = PathRules.getFilteredPatternReprPath(fold);
+    private static void writeFilteredPatterns(List<Pattern> filtered, int total, int fold, PatternType pt) {
+        String path = PathRules.getFilteredPatternPath(fold, pt);
+        String reprPath = PathRules.getFilteredPatternReprPath(fold, pt);
         try (BufferedWriter bw = FileUtil.writeFile(path);
              BufferedWriter bw2 = FileUtil.writeFile(reprPath)) {
             bw.write("filtered patterns: " + filtered.size() + "/" + total);

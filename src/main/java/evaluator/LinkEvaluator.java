@@ -1,5 +1,6 @@
 package evaluator;
 
+import beans.pattern.PatternType;
 import filter.PatternFilter;
 import beans.pattern.ClassType;
 import beans.pattern.Pattern;
@@ -21,8 +22,9 @@ import java.util.*;
  */
 public class LinkEvaluator {
 
-    private EvalResult originEvalRssult;
+    private EvalResult originEvalResult;
     private EvalResult fpEvalResult;
+    private EvalResult cosineEvalResult;
 
 
 
@@ -36,8 +38,9 @@ public class LinkEvaluator {
         this.posTransSet = posTransSet;
         this.negTransSet = negTransSet;
 
-        this.originEvalRssult = new EvalResult();
+        this.originEvalResult = new EvalResult();
         this.fpEvalResult = new EvalResult();
+        this.cosineEvalResult = new EvalResult();
     }
 
 
@@ -47,37 +50,6 @@ public class LinkEvaluator {
         for (int fold = 0; fold < numFolds; fold++) {
             TransSet train = allTransSet.trainCV(numFolds, fold);
             TransSet test = allTransSet.testCV(numFolds, fold);
-
-            Set<Pattern> union = new HashSet<>();
-
-            // 划分类别
-            Map<ClassType, List<Trans>> map2Class = train.map2Class();
-
-            // 分别在每个类别上分别挖pattern
-            for (ClassType ct : ClassType.values()) {
-                List<Trans> transList = map2Class.get(ct);
-                // 1. 挖pattern
-                PatternHandler.genFpPatterns(transList, fold, ct);
-                List<Pattern> patterns = PatternHandler.loadFpPatterns(fold, ct);
-
-                // 2. 计算D(X)的值
-                /*
-                 * 需要全局的trans,包括test,计算的是全局上的pattern支持度
-                 */
-                calAndSetDx(patterns, allTransSet);
-
-                // 3. 合并到union
-                for (Pattern pattern : patterns) {
-                    union.add(pattern);
-                }
-                //union.addAll(patterns); // TODO 如果一个pattern既从c1上挖出,也从c2上挖出,怎么办?
-            }
-
-            List<Pattern> allPats = new ArrayList<>(union);
-            Collections.sort(allPats, (o1, o2) -> Double.compare(o2.getDxValue(), o1.getDxValue()));
-            // 过滤
-            List<Pattern> filteredPatterns = PatternFilter.filter(allTransSet, allPats, fold);
-
             /**
              * 原始预测
              */
@@ -85,25 +57,35 @@ public class LinkEvaluator {
                 TransHandler.genOriginTrans(train, test, fold);
                 Instances evalTrain = InstancesHandler.loadInstances(PathRules.getOriginTrainPath(fold));
                 Instances evalTest  = InstancesHandler.loadInstances(PathRules.getOriginTestPath(fold));
-                evalOrigin(evalTrain, evalTest);
+                eval(evalTrain, evalTest, originEvalResult);
             }
 
+
+            // 划分类别
+            Map<ClassType, List<Trans>> map2Class = train.map2Class();
             /**
              * FP pattern引入后预测
              */
             {
-                TransHandler.genAugTrans(filteredPatterns, train, test, fold);
-                Instances evalTrain = InstancesHandler.loadInstances(PathRules.getAugTrainPath(fold));
-                Instances evalTest = InstancesHandler.loadInstances(PathRules.getAugTestPath(fold));
+                List<Pattern> fpPatterns = doGenAndFilter(map2Class, fold, allTransSet, PatternType.FP);
+                TransHandler.genAugTrans(fpPatterns, train, test, fold, PatternType.FP);
+                Instances evalTrain = InstancesHandler.loadInstances(PathRules.getAugTrainPath(fold, PatternType.FP));
+                Instances evalTest = InstancesHandler.loadInstances(PathRules.getAugTestPath(fold, PatternType.FP));
 
-                eval(evalTrain, evalTest);
+                eval(evalTrain, evalTest, fpEvalResult);
             }
 
             /**
-             * TODO Cosine pattern引入后预测
+             * Cosine pattern引入后预测
              */
+            {
+                List<Pattern> cosinePatterns = doGenAndFilter(map2Class, fold, allTransSet, PatternType.COSINE);
+                TransHandler.genAugTrans(cosinePatterns, train, test, fold, PatternType.COSINE);
+                Instances evalTrain = InstancesHandler.loadInstances(PathRules.getAugTrainPath(fold, PatternType.COSINE));
+                Instances evalTest  = InstancesHandler.loadInstances(PathRules.getAugTestPath(fold, PatternType.COSINE));
+                eval(evalTrain, evalTest, cosineEvalResult);
+            }
 
-            union.clear();
         }
     }
 
@@ -112,31 +94,23 @@ public class LinkEvaluator {
     public void printResult() {
         System.out.println("-------------\n");
         System.out.println("Precision \t Recall \t F1 \n");
-        originEvalRssult.printMax();
+        originEvalResult.printMax();
         fpEvalResult.printMax();
+        cosineEvalResult.printMax();
         System.out.println("-------------\n");
     }
 
-    private void eval(Instances train, Instances test)
+    private void eval(Instances train, Instances test, EvalResult evalResult)
             throws Exception {
         Evaluation evaluation = new Evaluation(train);
         evaluation.setPriors(train); // TODO ???
         Classifier cls = AbstractClassifier.makeCopy(params.getClassifier());
         cls.buildClassifier(train);
         evaluation.evaluateModel(cls, test);
-        fpEvalResult.addRecord(evaluation.weightedPrecision(), evaluation.weightedRecall());
+        evalResult.addRecord(evaluation.precision(0), evaluation.recall(0));
     }
 
-    private void evalOrigin(Instances train, Instances test) throws Exception {
-        Evaluation evaluation = new Evaluation(train);
-        evaluation.setPriors(train); // TODO ???
-        Classifier cls = AbstractClassifier.makeCopy(params.getClassifier());
-        cls.buildClassifier(train);
-        evaluation.evaluateModel(cls, test);
-        originEvalRssult.addRecord(evaluation.weightedPrecision(), evaluation.weightedRecall());
-    }
-
-    private void calAndSetDx(List<Pattern> patterns,
+    private void calAndSetDx(List<? extends Pattern> patterns,
                              TransSet allTransSet) {
         // suppD
         allTransSet.calSuppD(patterns);
@@ -149,6 +123,44 @@ public class LinkEvaluator {
             double dx = pattern.getSuppL() * Math.log(D/pattern.getSuppD()) / Math.log(2);
             pattern.setDxValue(dx);
         }
+    }
+
+    public List<Pattern> doGenAndFilter(Map<ClassType, List<Trans>> map2Class,
+                                        int fold, TransSet allTransSet, PatternType pt) throws Exception {
+
+        Set<Pattern> union = new HashSet<>();
+        // 分别在每个类别上分别挖pattern
+        for (ClassType ct : ClassType.values()) {
+            List<Trans> transList = map2Class.get(ct);
+            List<? extends Pattern> patterns;
+            // 1. 挖pattern
+            if (pt == PatternType.FP) {
+                PatternHandler.genFpPatterns(transList, fold, ct);
+                patterns = PatternHandler.loadFpPatterns(fold, ct);
+            } else {
+                PatternHandler.genCosinePatterns(transList, fold, ct);
+                patterns = PatternHandler.loadCosinePatterns(fold, ct);
+            }
+
+
+            // 2. 计算D(X)的值
+                /*
+                 * 需要全局的trans,包括test,计算的是全局上的pattern支持度
+                 */
+            calAndSetDx(patterns, allTransSet);
+
+            // 3. 合并到union
+            for (Pattern pattern : patterns) {
+                union.add(pattern);
+            }
+            //union.addAll(patterns); // TODO 如果一个pattern既从c1上挖出,也从c2上挖出,怎么办?
+        }
+
+        List<Pattern> allPats = new ArrayList<>(union);
+        Collections.sort(allPats, (o1, o2) -> Double.compare(o2.getDxValue(), o1.getDxValue()));
+        // 过滤
+        List<Pattern> filteredPatterns = PatternFilter.filter(allTransSet, allPats, fold, pt);
+        return filteredPatterns;
     }
 
 }
