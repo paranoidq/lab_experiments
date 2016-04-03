@@ -9,15 +9,13 @@ public class Edge {
     private int id2;
 
 
-    private Edge(int id1, int id2) {
+    protected Edge(int id1, int id2) {
         if (id1 < id2) {
             this.id1 = id1;
             this.id2 = id2;
         } else if (id1 > id2){
             this.id1 = id2;
             this.id2 = id1;
-        } else {
-            throw new RuntimeException("Cannot be self-circle");
         }
     }
 

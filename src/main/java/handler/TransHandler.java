@@ -165,6 +165,47 @@ public class TransHandler {
     }
 
 
+    public static void genPatternAugTrans(List<Pattern> patterns, TransSet train, TransSet test, int fold, PatternType pt) throws IOException {
+        String augTrainPath = PathRules.getPatternAugTrainPath(fold, pt);
+        String augTestPath = PathRules.getPatternAugTestPath(fold, pt);
+
+        BufferedWriter bw = FileUtil.writeFile(augTrainPath);
+        writePatternHeader(bw, patterns.size());
+        for (Trans trans : train.getTransSet()) {
+            StringBuilder sb = new StringBuilder();
+            for (Pattern pattern : patterns) {
+                if (pattern.cover(trans)) {
+                    sb.append("1,");
+                } else {
+                    sb.append("0,");
+                }
+            }
+            sb.append(trans.getCt().toString());
+            bw.write(sb.toString());
+            bw.newLine();
+        }
+        bw.flush();
+
+        bw = FileUtil.writeFile(augTestPath);
+        writePatternHeader(bw, patterns.size());
+        for (Trans trans : test.getTransSet()) {
+            StringBuilder sb = new StringBuilder();
+            for (Pattern pattern : patterns) {
+                if (pattern.cover(trans)) {
+                    sb.append("1,");
+                } else {
+                    sb.append("0,");
+                }
+            }
+            sb.append(trans.getCt().toString());
+            bw.write(sb.toString());
+            bw.newLine();
+        }
+        bw.flush(); // 这里必须flush,否则trans生成不完全....
+        bw.close();
+    }
+
+
     private static int INCREMENT_TRANS_ID = -1;
 
     /**
@@ -303,6 +344,19 @@ public class TransHandler {
         bw.newLine();
         for (int i = 0; i < itemCount; i++) {
             bw.write("@attribute item" + i + " {0, 1}");
+            bw.newLine();
+        }
+        bw.write("@attribute class {POSITIVE, NEGATIVE}");
+        bw.newLine();
+        bw.write("@data");
+        bw.newLine();
+    }
+
+    public static void writePatternHeader(BufferedWriter bw, int patternCount) throws IOException {
+        bw.write("@relation polblogs");
+        bw.newLine();
+        for (int i = 0; i < patternCount; i++) {
+            bw.write("@attribute pattern" + i + " {0, 1}");
             bw.newLine();
         }
         bw.write("@attribute class {POSITIVE, NEGATIVE}");

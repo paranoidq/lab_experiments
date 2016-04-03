@@ -66,8 +66,8 @@ public class PatternHandler {
         }
         Process p;
         if (System.getProperty("os.name").equals("Mac OS X")) {
-            ProcessBuilder pb = new ProcessBuilder("./run_fp.sh", Integer.toString(ParamConstants.PATTERN_MIN_LEN),
-                    Double.toString(ParamConstants.MIN_SUPPORT_FP),
+            ProcessBuilder pb = new ProcessBuilder("./run_fp.sh", Integer.toString(ClassifierParamConstants.PATTERN_MIN_LEN),
+                    Double.toString(ClassifierParamConstants.MIN_SUPPORT_FP),
                     transPath,
                     patternsPath);
             pb.directory(new File("/Users/paranoidq/316-data/polblogs2"));
@@ -102,8 +102,8 @@ public class PatternHandler {
         }
         Process p;
         if (System.getProperty("os.name").equals("Mac OS X")) {
-            ProcessBuilder pb = new ProcessBuilder("./run_cosine.sh", Integer.toString(ParamConstants.PATTERN_MIN_LEN),
-                    Double.toString(ParamConstants.MIN_SUPPORT_COSINE), Double.toString(ParamConstants.COSINE),
+            ProcessBuilder pb = new ProcessBuilder("./run_cosine.sh", Integer.toString(ClassifierParamConstants.PATTERN_MIN_LEN),
+                    Double.toString(ClassifierParamConstants.MIN_SUPPORT_COSINE), Double.toString(ClassifierParamConstants.COSINE),
                     transPath,
                     patternsPath);
             pb.directory(new File("/Users/paranoidq/316-data/polblogs2"));

@@ -22,8 +22,9 @@ public class AUCEvaluator {
     private Set<Edge> allEdges;
     private List<Edge> network;
     private Map<Integer, Set<Integer>> networkMap;
-    private List<Edge> trainEdges;
     private List<Edge> testEdges;
+
+    private ScoreMetrics metrics;
 
 
     public AUCEvaluator() {
@@ -39,9 +40,8 @@ public class AUCEvaluator {
         network = edges.subList(0, partition);
         networkMap = mapEdges(network);
 
-        List<Edge> predictedEdges = edges.subList(partition+1, edges.size());
-        trainEdges = predictedEdges.subList(0, predictedEdges.size()/2);
-        testEdges = predictedEdges.subList(predictedEdges.size()/2+1, predictedEdges.size());
+        testEdges = edges.subList(partition+1, edges.size());
+        metrics = new ScoreMetrics(networkMap);
 
     }
 
@@ -57,11 +57,11 @@ public class AUCEvaluator {
         double totalScore = 0;
         for (int i=0; i<PredictorParamConstants.N_AUC; i++) {
             Edge trueEdge = testEdges.get(trueEdgeRandom.nextInt(testEdges.size()));
-            int trueScore = cn(trueEdge.getId1(), trueEdge.getId2());
+            int trueScore = metrics.cn(trueEdge.getId1(), trueEdge.getId2());
 
             // fake edge
             Edge fakeEdge = genFakeEdge();
-            int fakeScore = cn(fakeEdge.getId1(), fakeEdge.getId2());
+            int fakeScore = metrics.cn(fakeEdge.getId1(), fakeEdge.getId2());
 
             if (trueScore > fakeScore) {
                 totalScore += 1;
@@ -71,23 +71,17 @@ public class AUCEvaluator {
         }
         System.out.println("CN AUC: " + totalScore/PredictorParamConstants.N_AUC);
     }
-    private int cn(int id1, int id2) {
-        if (!networkMap.containsKey(id1) || !networkMap.containsKey(id2)) {
-            return 0;
-        }
-        return CollectionUtils.intersection(networkMap.get(id1), networkMap.get(id2)).size();
-    }
 
 
     private void evaluateJaccard() {
         double totalScore = 0;
         for (int i=0; i<PredictorParamConstants.N_AUC; i++) {
             Edge trueEdge = testEdges.get(trueEdgeRandom.nextInt(testEdges.size()));
-            double trueScore = jaccard(trueEdge.getId1(), trueEdge.getId2());
+            double trueScore = metrics.jaccard(trueEdge.getId1(), trueEdge.getId2());
 
             // fake edge
             Edge fakeEdge = genFakeEdge();
-            double fakeScore = jaccard(fakeEdge.getId1(), fakeEdge.getId2());
+            double fakeScore = metrics.jaccard(fakeEdge.getId1(), fakeEdge.getId2());
 
             if (trueScore > fakeScore) {
                 totalScore += 1;
@@ -95,26 +89,20 @@ public class AUCEvaluator {
                 totalScore += 0.5;
             }
         }
-        System.out.println("Jaccard AUC: " + totalScore/PredictorParamConstants.N_AUC);
+        System.out.println("JA AUC: " + totalScore/PredictorParamConstants.N_AUC);
     }
-    private double jaccard(int id1, int id2) {
-        if (!networkMap.containsKey(id1) || !networkMap.containsKey(id2)) {
-            return 0;
-        }
-        return (double)CollectionUtils.intersection(networkMap.get(id1), networkMap.get(id2)).size()
-                / CollectionUtils.union(networkMap.get(id1), networkMap.get(id2)).size();
-    }
+
 
 
     private void evaluateAA() {
         double totalScore = 0;
         for (int i=0; i<PredictorParamConstants.N_AUC; i++) {
             Edge trueEdge = testEdges.get(trueEdgeRandom.nextInt(testEdges.size()));
-            double trueScore = aa(trueEdge.getId1(), trueEdge.getId2());
+            double trueScore = metrics.aa(trueEdge.getId1(), trueEdge.getId2());
 
             // fake edge
             Edge fakeEdge = genFakeEdge();
-            double fakeScore = aa(fakeEdge.getId1(), fakeEdge.getId2());
+            double fakeScore = metrics.aa(fakeEdge.getId1(), fakeEdge.getId2());
 
             if (trueScore > fakeScore) {
                 totalScore += 1;
@@ -124,28 +112,17 @@ public class AUCEvaluator {
         }
         System.out.println("AA AUC: " + totalScore/PredictorParamConstants.N_AUC);
     }
-    private double aa(int id1, int id2) {
-        if (!networkMap.containsKey(id1) || !networkMap.containsKey(id2)) {
-            return 0;
-        }
-        double score = 0;
-        Collection<Integer> CNs = CollectionUtils.intersection(networkMap.get(id1), networkMap.get(id2));
-        for (Integer id : CNs) {
-            int degree = networkMap.get(id).size();
-            score += (double)1 / Math.log(degree) * Math.log(2);
-        }
-        return score;
-    }
+
 
     private void evaluateRA() {
         double totalScore = 0;
         for (int i=0; i<PredictorParamConstants.N_AUC; i++) {
             Edge trueEdge = testEdges.get(trueEdgeRandom.nextInt(testEdges.size()));
-            double trueScore = ra(trueEdge.getId1(), trueEdge.getId2());
+            double trueScore = metrics.ra(trueEdge.getId1(), trueEdge.getId2());
 
             // fake edge
             Edge fakeEdge = genFakeEdge();
-            double fakeScore = ra(fakeEdge.getId1(), fakeEdge.getId2());
+            double fakeScore = metrics.ra(fakeEdge.getId1(), fakeEdge.getId2());
 
             if (trueScore > fakeScore) {
                 totalScore += 1;
@@ -155,28 +132,17 @@ public class AUCEvaluator {
         }
         System.out.println("RA AUC: " + totalScore/PredictorParamConstants.N_AUC);
     }
-    private double ra(int id1, int id2) {
-        if (!networkMap.containsKey(id1) || !networkMap.containsKey(id2)) {
-            return 0;
-        }
-        double score = 0;
-        Collection<Integer> CNs = CollectionUtils.intersection(networkMap.get(id1), networkMap.get(id2));
-        for (Integer id : CNs) {
-            int degree = networkMap.get(id).size();
-            score += (double)1 / degree;
-        }
-        return score;
-    }
+
 
     private void evaluatePA() {
         double totalScore = 0;
         for (int i=0; i<PredictorParamConstants.N_AUC; i++) {
             Edge trueEdge = testEdges.get(trueEdgeRandom.nextInt(testEdges.size()));
-            double trueScore = pa(trueEdge.getId1(), trueEdge.getId2());
+            double trueScore = metrics.pa(trueEdge.getId1(), trueEdge.getId2());
 
             // fake edge
             Edge fakeEdge = genFakeEdge();
-            double fakeScore = pa(fakeEdge.getId1(), fakeEdge.getId2());
+            double fakeScore = metrics.pa(fakeEdge.getId1(), fakeEdge.getId2());
 
             if (trueScore > fakeScore) {
                 totalScore += 1;
@@ -186,12 +152,7 @@ public class AUCEvaluator {
         }
         System.out.println("PA AUC: " + totalScore/PredictorParamConstants.N_AUC);
     }
-    private double pa(int id1, int id2) {
-        if (!networkMap.containsKey(id1) || !networkMap.containsKey(id2)) {
-            return 0;
-        }
-        return networkMap.get(id1).size() * networkMap.get(id2).size();
-    }
+
 
 
     private Edge genFakeEdge() {

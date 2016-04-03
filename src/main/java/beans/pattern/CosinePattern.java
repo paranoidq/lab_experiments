@@ -39,11 +39,11 @@ public class CosinePattern extends Pattern {
         for (Integer itemId : getItems()) {
             sb.append(Item.getItem(itemId).repr() + StringUtils.SPACE);
         }
-        sb.replace(sb.length() - 1, sb.length(), Constants.COMMA);
-        sb.append("suppL=" + getSuppL()).append(Constants.COMMA).append("suppD=" + getSuppD())
-                .append(Constants.COMMA).append("Cosine=" + this.cosine)
-                .append(Constants.COMMA).append("Dx=" + getDxValue())
-                .append(Constants.COMMA).append("From=" + getClass4Pattern().toString());
+//        sb.replace(sb.length() - 1, sb.length(), Constants.COMMA);
+//        sb.append("suppL=" + getSuppL()).append(Constants.COMMA).append("suppD=" + getSuppD())
+//                .append(Constants.COMMA).append("Cosine=" + this.cosine)
+//                .append(Constants.COMMA).append("Dx=" + getDxValue())
+//                .append(Constants.COMMA).append("From=" + getClass4Pattern().toString());
         return sb.toString();
     }
 }

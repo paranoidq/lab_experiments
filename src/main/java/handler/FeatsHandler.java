@@ -2,7 +2,7 @@ package handler;
 
 import org.apache.commons.lang3.StringUtils;
 import util.FileUtil;
-import util.ParamConstants;
+import util.ClassifierParamConstants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class FeatsHandler {
             // 过滤
             List<Map.Entry<Integer, Double>> tfIdfList = new ArrayList<>(tfIdfMap.entrySet());
             Collections.sort(tfIdfList, (o1, o2) -> Double.compare(o2.getValue(), o1.getValue()));
-            int size = (int)(ParamConstants.TFIDF_DELTA * tfIdfList.size());
+            int size = (int)(ClassifierParamConstants.TFIDF_DELTA * tfIdfList.size());
             List<Map.Entry<Integer, Double>> filteredEntry = tfIdfList.subList(0, size);
 
             List<Integer> filterFeats = filteredEntry.stream().map(Map.Entry::getKey).collect(Collectors.toList());

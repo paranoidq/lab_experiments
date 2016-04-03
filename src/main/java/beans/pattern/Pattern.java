@@ -129,10 +129,10 @@ public class Pattern {
         for (Integer itemId : items) {
             sb.append(Item.getItem(itemId).repr() + StringUtils.SPACE);
         }
-        sb.replace(sb.length() - 1, sb.length(), Constants.COMMA);
-        sb.append("suppL=" + suppL).append(Constants.COMMA).append("suppD=" + suppD)
-                .append(Constants.COMMA).append("Dx=" + DxValue)
-                .append(Constants.COMMA).append("From=" + class4Pattern.toString());
+//        sb.replace(sb.length() - 1, sb.length(), Constants.COMMA);
+//        sb.append("suppL=" + suppL).append(Constants.COMMA).append("suppD=" + suppD)
+//                .append(Constants.COMMA).append("Dx=" + DxValue)
+//                .append(Constants.COMMA).append("From=" + class4Pattern.toString());
         return sb.toString();
     }
 }

@@ -4,7 +4,7 @@ import beans.pattern.ClassType;
 import beans.pattern.Pattern;
 import com.google.common.collect.Lists;
 import util.FileUtil;
-import util.ParamConstants;
+import util.ClassifierParamConstants;
 import util.PathRules;
 
 import java.io.BufferedWriter;
@@ -104,10 +104,10 @@ public class TransSet {
 
 
         // 记录random seed
-        writeRandomSeed(ParamConstants.seed);
+        writeRandomSeed(ClassifierParamConstants.seed);
 
         // shuffle
-        Collections.shuffle(union.getTransSet(), new Random(ParamConstants.seed));
+        Collections.shuffle(union.getTransSet(), new Random(ClassifierParamConstants.seed));
 
         return union;
     }

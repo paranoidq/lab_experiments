@@ -6,7 +6,7 @@ import evaluator.EvalParams;
 import evaluator.LinkEvaluator;
 import handler.ItemHandler;
 import handler.TransHandler;
-import util.ParamConstants;
+import util.ClassifierParamConstants;
 import util.PathRules;
 
 
@@ -22,7 +22,7 @@ public class Main {
             TransSet posTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getPosTransPathAfterTFIDF(), ClassType.POSITIVE);
             TransSet negTransSet = TransHandler.loadTransSetAfterTFIDF(PathRules.getNegTransPathAfterTFIDF(), ClassType.NEGATIVE);
 
-            EvalParams params = new EvalParams(ParamConstants.classifier, ParamConstants.NUM_FOLDS);
+            EvalParams params = new EvalParams(ClassifierParamConstants.classifier, ClassifierParamConstants.NUM_FOLDS);
 
             LinkEvaluator evaluator = new LinkEvaluator(params, posTransSet, negTransSet);
             evaluator.evaluate();
@@ -30,6 +30,7 @@ public class Main {
             /*
             print result
              */
+            ClassifierParamConstants.printParams();
             evaluator.printResult();
 
         } catch (Exception e) {

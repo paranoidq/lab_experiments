@@ -1,7 +1,6 @@
 package util;
 
 import beans.pattern.ClassType;
-import beans.pattern.Pattern;
 import beans.pattern.PatternType;
 
 import java.io.File;
@@ -12,7 +11,7 @@ import java.io.File;
 public class PathRules {
 
     // private static final String _PREFIX = "/Users/paranoidq/316-data/polblogs2";
-    private static final String _PREFIX = ParamConstants._PREFIX;
+    private static final String _PREFIX = ClassifierParamConstants._PREFIX;
 
 
     /**
@@ -99,6 +98,20 @@ public class PathRules {
         else
             return _PREFIX + File.separator + fold + File.separator + "cosine_aug_test";
     }
+    public static String getPatternAugTrainPath(int fold, PatternType pt) {
+        if (pt == PatternType.FP)
+            return _PREFIX + File.separator + fold + File.separator + "fp_pat_aug_train";
+        else
+            return _PREFIX + File.separator + fold + File.separator + "cosine_pat_aug_train";
+    }
+    public static String getPatternAugTestPath(int fold, PatternType pt) {
+        if (pt == PatternType.FP)
+            return _PREFIX + File.separator + fold + File.separator + "fp_pat_aug_test";
+        else
+            return _PREFIX + File.separator + fold + File.separator + "cosine_pat_aug_test";
+    }
+
+
 
     public static String getOriginTrainPath(int fold) {
         return _PREFIX + File.separator + fold + File.separator + "origin_train";

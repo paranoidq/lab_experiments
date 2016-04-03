@@ -2,17 +2,14 @@ package filter;
 
 import beans.pattern.Pattern;
 import beans.pattern.PatternType;
-import beans.trans.Trans;
 import beans.trans.TransSet;
 import util.FileUtil;
-import util.ParamConstants;
+import util.ClassifierParamConstants;
 import util.PathRules;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by paranoidq on 16/3/22.
@@ -28,7 +25,7 @@ public class PatternFilter {
      * @return
      */
     public static List<Pattern> filter(TransSet transSet, List<Pattern> patterns, int fold, PatternType pt) {
-        return filterByCoverage(transSet, patterns, pt, fold, ParamConstants.COVERAGE_DELTA);
+        return filterByCoverage(transSet, patterns, pt, fold, ClassifierParamConstants.COVERAGE_DELTA);
     }
 
 
@@ -36,7 +33,7 @@ public class PatternFilter {
      * 几种方案:
      *      (1) train中被cover一定的比例
      *      (2) test中被cover一定的比例
-     *      (3) train+test中被cover一定的比例
+     *      (3) train+test中被cover一定的比例 *
      * @param transSet
      * @param patterns
      * @param coverage
@@ -47,12 +44,15 @@ public class PatternFilter {
         List<Pattern> filtered = new LinkedList<>();
 
         double threshold = transSet.size() * coverage;
+
+        Map<Integer, Integer> instanceCoverTimes = new HashMap<>();
+
         Set<Integer> coveredInstances = new HashSet<>();
         int total = patterns.size();
         Iterator<Pattern> iterator = patterns.iterator();
         while (iterator.hasNext()) {
             Pattern pattern = iterator.next();
-            if ((double)coveredInstances.size() >= threshold) {
+            if ((double)coveredInstances.size() > threshold) {
                 break;
             }
 //            coveredInstances.addAll(
@@ -60,7 +60,14 @@ public class PatternFilter {
 //                            .collect(Collectors.toList()));
             for (int i=0; i<transSet.getTransSet().size(); i++) {
                 if (pattern.cover(transSet.getTransSet().get(i))) {
-                    coveredInstances.add(i);
+                    if (instanceCoverTimes.containsKey(i)) {
+                        instanceCoverTimes.put(i, instanceCoverTimes.get(i) + 1);
+                    } else {
+                        instanceCoverTimes.put(i, 1);
+                    }
+                    if (!coveredInstances.contains(i) && instanceCoverTimes.get(i) >= ClassifierParamConstants.PER_INS_COVER_TIMES) {
+                        coveredInstances.add(i);
+                    }
                 }
             }
             filtered.add(pattern);
