@@ -53,6 +53,9 @@ public class PrecisionEvaluator {
         evaluateAA();
         evaluateRA();
         evaluatePA();
+
+        evaluateLP();
+        //evaluateKazz();
     }
 
     private void genAllPredictedEdges() {
@@ -158,6 +161,41 @@ public class PrecisionEvaluator {
         System.out.println("RA Prec@" + L + ": " + precisionL);
     }
 
+    private void evaluateLP() {
+        double count = 0;
+        List<ScoreEdge> sortedEdges = new ArrayList<>();
+        for (ScoreEdge edge : predictedEdges) {
+            edge.setScore(metrics.lp(edge.getId1(), edge.getId2()));
+            sortedEdges.add(edge);
+        }
+        Collections.sort(sortedEdges);
+        Collection<ScoreEdge> intersection = CollectionUtils.intersection(sortedEdges.subList(0, L), testEdges);
+        if (!CollectionUtils.isEmpty(intersection)) {
+            count += intersection.size();
+        }
+
+        double precisionL = count / L;
+        System.out.println("LP Prec@" + L + ": " + precisionL);
+    }
+
+    private void evaluateKazz() {
+        double count = 0;
+        List<ScoreEdge> sortedEdges = new ArrayList<>();
+        for (ScoreEdge edge : predictedEdges) {
+            edge.setScore(metrics.kazz(edge.getId1(), edge.getId2()));
+            sortedEdges.add(edge);
+        }
+        Collections.sort(sortedEdges);
+        Collection<ScoreEdge> intersection = CollectionUtils.intersection(sortedEdges.subList(0, L), testEdges);
+        if (!CollectionUtils.isEmpty(intersection)) {
+            count += intersection.size();
+        }
+
+        double precisionL = count / L;
+        System.out.println("KZ Prec@" + L + ": " + precisionL);
+    }
+
+
     private Map<Integer, Set<Integer>> mapEdges(Set<Edge> edges) {
         Map<Integer, Set<Integer>> map = new HashMap<>();
         for (Edge edge : edges) {
@@ -174,7 +212,6 @@ public class PrecisionEvaluator {
     }
 
     public static void main(String[] args) {
-        PrecisionEvaluator precisionEvaluator = new PrecisionEvaluator();
-        precisionEvaluator.evaluate();
+
     }
 }

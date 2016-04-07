@@ -9,4 +9,6 @@ public interface PredictorParamConstants {
 
     int N_PRECISION = 20;
 
+    int MAX_ID = 361;
+
 }

@@ -2,7 +2,6 @@ package predictor.evaluator;
 
 import beans.Edge;
 import handler.EdgeHandler;
-import org.apache.commons.collections.CollectionUtils;
 import util.PathRules;
 import util.PredictorParamConstants;
 
@@ -14,7 +13,7 @@ import java.util.*;
  */
 public class AUCEvaluator {
 
-    private final static int MAX_ID_BOUND = 361 + 1;
+    public final static int MAX_ID_BOUND = PredictorParamConstants.MAX_ID + 1;
 
     private static Random trueEdgeRandom = new Random(System.nanoTime());
     private static Random fakeEdgeRandom = new Random(System.nanoTime());
@@ -45,12 +44,16 @@ public class AUCEvaluator {
 
     }
 
-    public void evaluate() throws IOException {
+    public void evaluate() {
         evaluateCN();
         evaluateJaccard();
         evaluateAA();
         evaluateRA();
         evaluatePA();
+
+        evaluateLP();
+
+        evaluateLRW();
     }
 
     private void evaluateCN() {
@@ -151,6 +154,45 @@ public class AUCEvaluator {
             }
         }
         System.out.println("PA AUC: " + totalScore/PredictorParamConstants.N_AUC);
+    }
+
+
+    private void evaluateLP() {
+        double totalScore = 0;
+        for (int i=0; i<PredictorParamConstants.N_AUC; i++) {
+            Edge trueEdge = testEdges.get(trueEdgeRandom.nextInt(testEdges.size()));
+            double trueScore = metrics.lp(trueEdge.getId1(), trueEdge.getId2());
+
+            // fake edge
+            Edge fakeEdge = genFakeEdge();
+            double fakeScore = metrics.lp(fakeEdge.getId1(), fakeEdge.getId2());
+
+            if (trueScore > fakeScore) {
+                totalScore += 1;
+            } else if (trueScore == fakeScore) {
+                totalScore += 0.5;
+            }
+        }
+        System.out.println("LP AUC: " + totalScore/PredictorParamConstants.N_AUC);
+    }
+
+    private void evaluateLRW() {
+        double totalScore = 0;
+        for (int i=0; i<100; i++) {
+            Edge trueEdge = testEdges.get(trueEdgeRandom.nextInt(testEdges.size()));
+            double trueScore = metrics.lrw(trueEdge.getId1(), trueEdge.getId2());
+
+            // fake edge
+            Edge fakeEdge = genFakeEdge();
+            double fakeScore = metrics.lrw(fakeEdge.getId1(), fakeEdge.getId2());
+
+            if (trueScore > fakeScore) {
+                totalScore += 1;
+            } else if (trueScore == fakeScore) {
+                totalScore += 0.5;
+            }
+        }
+        System.out.println("LRW AUC: " + totalScore/100);
     }
 
 

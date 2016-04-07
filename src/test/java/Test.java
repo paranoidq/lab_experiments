@@ -45,11 +45,7 @@ public class Test {
 //        Random r = new Random(1);
 //        System.out.println(r.nextInt(9));
 
-        long t1 = System.currentTimeMillis();
-        List<Integer> a = new ArrayList<>();
-        for (int i=0; i<100; i++) {
-
-        }
+       System.out.println(Double.compare(0.2817450790195407, 0.001782543075936133));
 
     }
 }
