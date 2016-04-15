@@ -9,6 +9,7 @@ import beans.trans.Trans;
 import beans.trans.TransSet;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import util.Constants;
 import util.FileUtil;
 import util.PathRules;
 
@@ -206,8 +207,6 @@ public class TransHandler {
     }
 
 
-    private static int INCREMENT_TRANS_ID = -1;
-
     /**
      * 加载过滤之后生成的trans
      *
@@ -216,18 +215,21 @@ public class TransHandler {
      * @return
      * @throws IOException
      */
-    public static TransSet loadTransSetAfterTFIDF(String path, ClassType ct) throws IOException {
+    public static TransSet loadTransSetAfterTFIDF(String path, ClassType ct) {
         TransSet transSet = new TransSet();
 
-        BufferedReader br = FileUtil.readFile(path);
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] sp = StringUtils.strip(line).split(",");
-            Trans trans = new Trans(ct);
-            for (String str : sp) {
-                trans.addItemId(Integer.parseInt(str));
+        try (BufferedReader br = FileUtil.readFile(path)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] sp = StringUtils.strip(line).split(Constants.COMMA);
+                Trans trans = new Trans(ct);
+                for (String str : sp) {
+                    trans.addItemId(Integer.parseInt(str));
+                }
+                transSet.addTrans(trans);
             }
-            transSet.addTrans(trans);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return transSet;
     }

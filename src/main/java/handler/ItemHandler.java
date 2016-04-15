@@ -22,14 +22,17 @@ import java.util.*;
  */
 public class ItemHandler {
 
-    public static void loadItems(String path) throws IOException {
-        BufferedReader br = FileUtil.readFile(path);
-        String line;
-        while ( (line = br.readLine()) != null) {
-            line = StringUtils.strip(line);
-            String[] sp = line.split(Constants.COMMA);
-            int itemId = Integer.parseInt(sp[0]);
-            Item.addItem(itemId, sp[1]);
+    public static void loadItems(String path) {
+        try (BufferedReader br = FileUtil.readFile(path)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = StringUtils.strip(line);
+                String[] sp = line.split(Constants.COMMA);
+                int itemId = Integer.parseInt(sp[0]);
+                Item.addItem(itemId, sp[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

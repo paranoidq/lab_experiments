@@ -1,5 +1,6 @@
 package beans.trans;
 
+import beans.Edge;
 import beans.pattern.ClassType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -13,9 +14,14 @@ import java.util.*;
 
 public class Trans {
 
+
     private List<Integer> items;
     private Set<Integer> itemsSet;
     private ClassType ct;
+
+    /* add trans corresponding edge */
+    private Edge edge;
+
 
 
     public Trans(ClassType ct) {
@@ -23,6 +29,7 @@ public class Trans {
         this.items = Lists.newLinkedList();
         this.itemsSet = Sets.newHashSet();
     }
+
 
 
     public void addItemId(int itemId){
@@ -33,7 +40,15 @@ public class Trans {
     public void setFeats(List<Integer> feats) {
         feats.sort((o1, o2) -> Integer.compare(o1, o2));
         this.items = feats;
+        this.itemsSet = Sets.newHashSet(items);
     }
+    public void setEdge(Edge e) {
+        this.edge = e;
+    }
+    public Edge getEdge() {
+        return this.edge;
+    }
+
 
     public List<Integer> getItemsAsList(){
         return this.items;

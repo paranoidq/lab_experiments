@@ -8,6 +8,7 @@ import beans.trans.Trans;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import predictor.evaluator.PredictorParamConstants;
 import util.*;
 
 import java.io.BufferedReader;

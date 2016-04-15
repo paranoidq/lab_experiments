@@ -15,6 +15,8 @@ import java.util.*;
  */
 public class EdgeHandler {
 
+    private static int INCR_ID = -1;
+
     public static List<Edge> loadEdges(String path) {
         List<Edge> list = new LinkedList<>();
         try (BufferedReader br = FileUtil.readFile(path)) {
@@ -24,7 +26,8 @@ public class EdgeHandler {
                 if (sp.length != 2) {
                     throw new RuntimeException("Invalid edge");
                 }
-                list.add(Edge.newEdge(Integer.parseInt(sp[0]), Integer.parseInt(sp[1])));
+                Edge newEdge = Edge.newEdge(Integer.parseInt(sp[0]), Integer.parseInt(sp[1]));
+                list.add(newEdge);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,7 +38,7 @@ public class EdgeHandler {
     public static void writeEdges(List<Edge> edges, String path) {
         try (BufferedWriter bw = FileUtil.writeFile(path)) {
             for (Edge edge : edges) {
-                bw.write("" + edge.getId1() + "," + edge.getId2());
+                bw.write(edge.toString());
                 bw.newLine();
             }
         } catch (IOException e) {

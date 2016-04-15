@@ -1,6 +1,7 @@
 package handler;
 
 import org.apache.commons.lang3.StringUtils;
+import util.Constants;
 import util.FileUtil;
 import util.ClassifierParamConstants;
 
@@ -15,31 +16,32 @@ import java.util.stream.Collectors;
 public class FeatsHandler {
 
     /**
-     * 加载原始的features文件
-     *      line no = uid
-     *      id      = item id
+     * 加载features文件
+     *      uid:itemid,itemid,...
      * @param path
      * @return
      * @throws IOException
      */
-    public static Map<Integer, Set<Integer>> loadFeats(String path) throws IOException {
+    public static Map<Integer, Set<Integer>> loadFeats(String path) {
         Map<Integer, Set<Integer>> uid2Feats = new HashMap<>();
 
         try (BufferedReader br = FileUtil.readFile(path)) {
             String line;
-            int uid = -1;
             while ( (line = br.readLine()) != null) {
-                ++uid;
                 Set<Integer> feats = new HashSet<>();
-                String[] sp = StringUtils.strip(line, "\n").split(",");
-                for (String featIdStr : sp) {
+                String[] sp = StringUtils.strip(line, "\n").split(Constants.COLON);
+                int uid = Integer.parseInt(sp[0]);
+                for (String featIdStr : sp[1].split(Constants.COMMA)) {
                     feats.add(Integer.parseInt(featIdStr));
                 }
                 uid2Feats.put(uid, feats);
             }
+        } catch(IOException e) {
+            e.printStackTrace();
         }
         return uid2Feats;
     }
+
 
     public static Map<Integer, List<Integer>> filterByTFIDF(Map<Integer, Set<Integer>> uid2feats) {
         Map<Integer, List<Integer>> filteredUid2Feats = new HashMap<>();

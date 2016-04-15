@@ -58,6 +58,10 @@ public class Item {
         return this.name;
     }
 
+    /**
+     * 应为TFIDF过滤，因此需要将原有的itemID重新映射为递增ID.
+     * @return
+     */
     public static Map<Integer, Integer> map2NewId() {
         Map<Integer, Integer> newID2IdMap = new HashMap<>();
 

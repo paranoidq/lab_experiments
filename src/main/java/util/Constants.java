@@ -12,6 +12,7 @@ public interface Constants {
     String TAB = "\t";
     String NEWLINE = "\n";
     String COMMA = ",";
+    String COLON = ":";
 
     String PATTERN_FEQ_SPLIT = "\\|";
     String PATTERN_ENTRY_SPLIT = "\\s+";

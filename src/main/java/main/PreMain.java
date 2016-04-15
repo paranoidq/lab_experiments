@@ -24,11 +24,11 @@ public class PreMain {
         try {
             ItemHandler.loadItems(PathRules.getItemPath());
 
-            Map<Integer, Set<Integer>> feats = FeatsHandler.loadFeats(PathRules.getFeatsPath());
+            Map<Integer, Set<Integer>> feats = FeatsHandler.loadFeats(PathRules.getoriginFeatsPath());
             Map<Integer, List<Integer>> filteredFeats = FeatsHandler.filterByTFIDF(feats);
 
             // 根据过滤过的feats构建trans
-            List<Edge> edges = EdgeHandler.loadEdges(PathRules.getEdgesPath());
+            List<Edge> edges = EdgeHandler.loadEdges(PathRules.getAllPosEdgesPath());
             TransSet posTrans = TransHandler.genPosTransRandomly(filteredFeats, edges);
             TransSet negTrans = TransHandler.genNegTransRandomly(filteredFeats, edges, posTrans.size());
 

@@ -47,16 +47,27 @@ public class PathRules {
      * 获取TFIDF之前的uid-feats路径
      * @return
      */
-    public static String getFeatsPath() {
-        return _PREFIX + File.separator + "features";
+    public static String getoriginFeatsPath() {
+        return _PREFIX + File.separator + "feats";
+    }
+
+    /**
+     * 获取TFIDF之后的uid-feats路径
+     * @return
+     */
+    public static String getFilteredFeatsPath() {
+        return _PREFIX + File.separator + "filtered_feats";
     }
 
     /**
      * 获取原始的edges路径
      * @return
      */
-    public static String getEdgesPath() {
-        return _PREFIX + File.separator + "edges";
+    public static String getAllPosEdgesPath() {
+        return _PREFIX + File.separator + "all_pos_edges";
+    }
+    public static String getAllNegEdgesPath() {
+        return _PREFIX + File.separator + "all_neg_edges";
     }
 
     /**
@@ -142,4 +153,46 @@ public class PathRules {
         else
             return _PREFIX + File.separator + fold + File.separator + "cosine_filtered_patterns_repr";
     }
+
+
+
+    /*
+    *********************************************************************
+     */
+
+    public static String getLinkTrainPath_FEAT_ORIGIN() {
+        return _PREFIX + File.separator + "FEAT" + File.separator + "origin" + File.separator + "train.arff";
+    }
+    public static String getLinkPosTestPath_FEAT_ORIGIN() {
+        return _PREFIX + File.separator + "FEAT" + File.separator + "origin" + File.separator + "test_pos.arff";
+    }
+    public static String getLinkNegTestPath_FEAT_ORIGIN() {
+        return _PREFIX + File.separator + "FEAT" + File.separator + "origin" + File.separator + "test_neg.arff";
+    }
+
+    /*
+    *********************************************************************
+     */
+    public static String getPosTransPath_PBLRW() {
+        return _PREFIX + File.separator + "PBLRW" + File.separator + "pos_trans";
+    }
+    public static String getNegTransPath_PBLRW() {
+        return _PREFIX + File.separator + "PBLRW" + File.separator + "neg_trans";
+    }
+
+    public static String getPosPatternPath_PBLRW() {
+        return _PREFIX + File.separator + "PBLRW" + File.separator + "pos_pats";
+    }
+    public static String getNegPatternPath_PBLRW() {
+        return _PREFIX + File.separator + "PBLRW" + File.separator + "neg_pats";
+    }
+
+    public static String getFilteredPosPatternPath_PBLRW() {
+        return _PREFIX + File.separator + "PBLRW" + File.separator + "filtered_pos_pats";
+    }
+    public static String getFilteredNegPatternPath_PBLRW() {
+        return _PREFIX + File.separator + "PBLRW" + File.separator + "filtered_neg_pats";
+    }
+
+
 }
