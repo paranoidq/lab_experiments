@@ -27,5 +27,9 @@ public interface PredictorParamConstants {
     double COVERAGE_DELTA = 0.9;
 
 
+    // negative pattern penalty
+    int penalty = 1;
+
+
 
 }
